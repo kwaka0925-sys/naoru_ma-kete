@@ -57,7 +57,7 @@ export default function JapanMapClient({ data, getColor, formatMetric, onSelect,
         <Geographies geography={JAPAN_TOPOJSON}>
           {({ geographies }) =>
             geographies.map((geo) => {
-              const prefName = geo.properties.nam_ja ?? geo.properties.name;
+              const prefName = (geo.properties.nam_ja ?? geo.properties.name ?? "") as string;
               const d = dataMap.get(prefName);
               const isSelected = selected?.prefecture === prefName;
 
