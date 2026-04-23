@@ -118,30 +118,18 @@ export default function JapanMapClient({ data, getColor, formatMetric, onSelect,
       {/* ツールチップ */}
       {tooltip && (
         <div
-          className="absolute bg-gray-900 text-white text-xs rounded-lg px-3 py-2 pointer-events-none z-10 shadow-lg"
-          style={{ left: tooltip.x + 10, top: tooltip.y - 40 }}
+          className="absolute bg-slate-900 text-white text-xs rounded-xl px-3 py-2 pointer-events-none z-10 shadow-xl border border-white/10 backdrop-blur-sm"
+          style={{ left: tooltip.x + 12, top: tooltip.y - 48 }}
         >
-          <p className="font-medium">{tooltip.pref.prefecture}</p>
-          <p>{formatMetric(tooltip.pref)}</p>
-          <p className="text-gray-400">{tooltip.pref.storeCount} 店舗</p>
+          <p className="font-bold text-sm">{tooltip.pref.prefecture}</p>
+          <p className="text-indigo-300 font-semibold tabular-nums">
+            {formatMetric(tooltip.pref)}
+          </p>
+          <p className="text-slate-400 text-[10px] mt-0.5">
+            {tooltip.pref.storeCount} 店舗
+          </p>
         </div>
       )}
-
-      {/* 凡例 */}
-      <div className="absolute bottom-3 right-3 bg-white/90 rounded-lg p-2 text-xs shadow">
-        <div className="flex items-center gap-1 mb-1">
-          <div className="w-3 h-3 rounded-full bg-gray-200" />
-          <span className="text-gray-500">データなし</span>
-        </div>
-        <div className="flex items-center gap-1 mb-1">
-          <div className="w-3 h-3 rounded-full" style={{ background: "rgb(255,80,80)" }} />
-          <span className="text-gray-500">低</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded-full" style={{ background: "rgb(0,200,80)" }} />
-          <span className="text-gray-500">高</span>
-        </div>
-      </div>
     </div>
   );
 }

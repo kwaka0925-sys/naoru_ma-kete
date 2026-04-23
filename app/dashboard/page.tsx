@@ -1,13 +1,21 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import KpiCard from "@/components/dashboard/KpiCard";
+import KpiCard, { KpiCardSkeleton } from "@/components/dashboard/KpiCard";
 import MediaComparisonChart from "@/components/dashboard/MediaComparisonChart";
 import TopStoresTable from "@/components/dashboard/TopStoresTable";
 import { formatJPY, formatNumber, formatPercent } from "@/lib/calculations";
-import { MEDIA_LABELS } from "@/lib/types";
+import { MEDIA_LABELS, MEDIA_COLORS } from "@/lib/types";
 import type { MediaType } from "@/lib/types";
 import { format, subMonths, startOfMonth } from "date-fns";
+import {
+  IconYen,
+  IconUsers,
+  IconTrendingUp,
+  IconTarget,
+  IconSparkles,
+  IconCalendar,
+} from "@/components/ui/Icons";
 
 interface Summary {
   overall: {
@@ -18,18 +26,30 @@ interface Summary {
     roi: number | null;
     cpa: number | null;
   };
-  byMedia: Array<{ media: MediaType; metrics: { spend: number; leads: number; contracts: number; roi: number | null; cpa: number | null } }>;
+  byMedia: Array<{
+    media: MediaType;
+    metrics: {
+      spend: number;
+      leads: number;
+      contracts: number;
+      roi: number | null;
+      cpa: number | null;
+    };
+  }>;
   topStores: Array<{
     store: { id: string; name: string; prefecture: string };
     metrics: { spend: number; leads: number; contracts: number; roi: number | null; cpa: number | null; revenue: number };
   }>;
 }
 
+type ChartMetric = "spend" | "leads" | "roi" | "cpa";
+
 export default function DashboardPage() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
   const [months, setMonths] = useState(3);
   const [seeding, setSeeding] = useState(false);
+  const [chartMetric, setChartMetric] = useState<ChartMetric>("spend");
 
   const defaultTo = format(new Date(), "yyyy-MM");
   const defaultFrom = format(subMonths(startOfMonth(new Date()), months - 1), "yyyy-MM");
@@ -56,41 +76,56 @@ export default function DashboardPage() {
     fetchSummary();
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-gray-500 text-sm">読み込み中...</div>
-      </div>
-    );
-  }
-
   const { overall, byMedia, topStores } = summary ?? { overall: null, byMedia: [], topStores: [] };
-
-  const isEmpty = !overall || (overall.spend === 0 && overall.leads === 0);
+  const isEmpty = !loading && (!overall || (overall.spend === 0 && overall.leads === 0));
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-8 space-y-6 max-w-[1600px] mx-auto">
       {/* ヘッダー */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">ダッシュボード</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            {defaultFrom} 〜 {defaultTo} の集計
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-1 h-6 rounded-full bg-gradient-to-b from-indigo-500 to-violet-500" />
+            <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">
+              Overview
+            </p>
+          </div>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+            マーケティングダッシュボード
+          </h1>
+          <p className="text-sm text-slate-500 mt-1 flex items-center gap-1.5">
+            <IconCalendar size={14} />
+            <span>
+              {defaultFrom} 〜 {defaultTo}
+            </span>
+            <span className="text-slate-300 mx-1">·</span>
+            <span>全国100店舗のマーケティング効果を一元管理</span>
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <select
-            value={months}
-            onChange={(e) => setMonths(Number(e.target.value))}
-            className="input w-auto"
-          >
-            <option value={1}>直近1ヶ月</option>
-            <option value={3}>直近3ヶ月</option>
-            <option value={6}>直近6ヶ月</option>
-            <option value={12}>直近12ヶ月</option>
-          </select>
+          <div className="inline-flex bg-white rounded-xl border border-slate-200 shadow-sm p-1">
+            {[
+              { v: 1, label: "1ヶ月" },
+              { v: 3, label: "3ヶ月" },
+              { v: 6, label: "6ヶ月" },
+              { v: 12, label: "12ヶ月" },
+            ].map((o) => (
+              <button
+                key={o.v}
+                onClick={() => setMonths(o.v)}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  months === o.v
+                    ? "bg-indigo-600 text-white shadow-sm"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
           {isEmpty && (
             <button onClick={handleSeed} disabled={seeding} className="btn-primary">
+              <IconSparkles size={16} />
               {seeding ? "生成中..." : "サンプルデータを追加"}
             </button>
           )}
@@ -99,76 +134,196 @@ export default function DashboardPage() {
 
       {/* KPIカード */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard
-          title="総広告費"
-          value={overall ? formatJPY(overall.spend) : "-"}
-          icon="💴"
-          color="indigo"
-        />
-        <KpiCard
-          title="総リード数"
-          value={overall ? formatNumber(overall.leads) + " 件" : "-"}
-          icon="👤"
-          color="blue"
-        />
-        <KpiCard
-          title="平均ROI"
-          value={overall ? formatPercent(overall.roi) : "-"}
-          icon="📈"
-          color={overall && overall.roi && overall.roi > 0 ? "green" : "red"}
-          subtitle="(売上-広告費)÷広告費"
-        />
-        <KpiCard
-          title="平均CPA"
-          value={overall && overall.cpa ? formatJPY(overall.cpa) : "-"}
-          icon="🎯"
-          color="purple"
-          subtitle="広告費÷契約数"
-        />
+        {loading ? (
+          <>
+            <KpiCardSkeleton />
+            <KpiCardSkeleton />
+            <KpiCardSkeleton />
+            <KpiCardSkeleton />
+          </>
+        ) : (
+          <>
+            <KpiCard
+              title="総広告費"
+              value={overall ? formatJPY(overall.spend) : "—"}
+              icon={<IconYen size={20} />}
+              color="indigo"
+              subtitle={`${defaultFrom}〜${defaultTo}`}
+            />
+            <KpiCard
+              title="総リード数"
+              value={overall ? formatNumber(overall.leads) + " 件" : "—"}
+              icon={<IconUsers size={20} />}
+              color="blue"
+              subtitle="獲得件数の合計"
+            />
+            <KpiCard
+              title="平均ROI"
+              value={overall ? formatPercent(overall.roi) : "—"}
+              icon={<IconTrendingUp size={20} />}
+              color={overall && overall.roi && overall.roi > 0 ? "emerald" : "rose"}
+              subtitle="(売上-広告費)÷広告費"
+            />
+            <KpiCard
+              title="平均CPA"
+              value={overall && overall.cpa ? formatJPY(overall.cpa) : "—"}
+              icon={<IconTarget size={20} />}
+              color="violet"
+              subtitle="契約1件あたりの広告費"
+            />
+          </>
+        )}
       </div>
 
-      {/* 媒体別 KPI */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {byMedia.map(({ media, metrics }) => (
-          <div key={media} className="card p-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className={`badge-${media.toLowerCase()}`}>{MEDIA_LABELS[media]}</span>
-              <span className="text-xs text-gray-400">{defaultFrom}〜{defaultTo}</span>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <p className="text-xs text-gray-500">広告費</p>
-                <p className="text-lg font-bold">{formatJPY(metrics.spend)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">リード数</p>
-                <p className="text-lg font-bold">{formatNumber(metrics.leads)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">ROI</p>
-                <p className={`text-lg font-bold ${metrics.roi && metrics.roi > 0 ? "text-green-600" : "text-red-500"}`}>
-                  {formatPercent(metrics.roi)}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">CPA</p>
-                <p className="text-lg font-bold">{metrics.cpa ? formatJPY(metrics.cpa) : "-"}</p>
-              </div>
+      {/* 媒体別カード (ブランドカラー) */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h2 className="section-title">媒体別パフォーマンス</h2>
+            <p className="section-subtitle mt-0.5">各媒体の主要指標サマリー</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {loading
+            ? [0, 1, 2].map((i) => (
+                <div key={i} className="card p-5">
+                  <div className="skeleton h-5 w-24 mb-4" />
+                  <div className="grid grid-cols-2 gap-3">
+                    {[0, 1, 2, 3].map((j) => (
+                      <div key={j}>
+                        <div className="skeleton h-3 w-12 mb-1" />
+                        <div className="skeleton h-5 w-20" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+            : byMedia.map(({ media, metrics }) => {
+                const brand = MEDIA_COLORS[media];
+                return (
+                  <div
+                    key={media}
+                    className="card p-5 relative overflow-hidden hover:shadow-md transition-shadow duration-200"
+                  >
+                    {/* ブランドカラーの上端ストライプ */}
+                    <div
+                      className="absolute top-0 left-0 right-0 h-1"
+                      style={{ background: brand }}
+                    />
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2.5">
+                        <div
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-sm"
+                          style={{ background: brand }}
+                        >
+                          {media === "META" ? "f" : media === "TIKTOK" ? "♪" : "HPB"}
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-900 text-sm leading-tight">
+                            {MEDIA_LABELS[media]}
+                          </p>
+                          <p className="text-[10px] text-slate-400 font-medium">
+                            {metrics.spend > 0 ? "稼働中" : "データなし"}
+                          </p>
+                        </div>
+                      </div>
+                      <span
+                        className={`text-xs font-bold tabular-nums ${
+                          metrics.roi && metrics.roi > 0
+                            ? "text-emerald-600"
+                            : "text-red-500"
+                        }`}
+                      >
+                        {formatPercent(metrics.roi)}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mb-1">
+                          広告費
+                        </p>
+                        <p className="text-base font-bold text-slate-900 tabular-nums">
+                          {formatJPY(metrics.spend)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mb-1">
+                          リード
+                        </p>
+                        <p className="text-base font-bold text-slate-900 tabular-nums">
+                          {formatNumber(metrics.leads)} 件
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mb-1">
+                          契約数
+                        </p>
+                        <p className="text-base font-bold text-slate-900 tabular-nums">
+                          {Math.round(metrics.contracts)} 件
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mb-1">
+                          CPA
+                        </p>
+                        <p className="text-base font-bold text-slate-900 tabular-nums">
+                          {metrics.cpa ? formatJPY(metrics.cpa) : "—"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+        </div>
+      </div>
+
+      {/* 2カラム: 比較チャート + TOPストア */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        {/* 媒体比較チャート */}
+        <div className="card p-6">
+          <div className="flex items-start justify-between mb-1">
+            <div>
+              <h2 className="section-title">媒体別比較</h2>
+              <p className="section-subtitle mt-0.5">指標を切り替えて比較</p>
             </div>
           </div>
-        ))}
-      </div>
+          <div className="mt-3">
+            {loading ? (
+              <div className="skeleton h-[260px] w-full" />
+            ) : (
+              <MediaComparisonChart
+                data={byMedia}
+                activeChart={chartMetric}
+                onChangeChart={setChartMetric}
+              />
+            )}
+          </div>
+        </div>
 
-      {/* 媒体比較チャート */}
-      <div className="card p-4">
-        <h2 className="text-base font-semibold mb-4">媒体別パフォーマンス比較</h2>
-        <MediaComparisonChart data={byMedia} />
-      </div>
-
-      {/* Top店舗 */}
-      <div className="card p-4">
-        <h2 className="text-base font-semibold mb-4">ROI上位店舗</h2>
-        <TopStoresTable stores={topStores} />
+        {/* 空のスペース or 将来のウィジェット - 今はTopStoresTableに譲る */}
+        <div className="card p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="section-title">ROI上位店舗</h2>
+              <p className="section-subtitle mt-0.5">
+                投資対効果が高い上位 {topStores.length} 店舗
+              </p>
+            </div>
+            <span className="badge-success">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse-dot" />
+              Live
+            </span>
+          </div>
+          {loading ? (
+            <div className="space-y-3">
+              {[0, 1, 2, 3, 4].map((i) => (
+                <div key={i} className="skeleton h-10 w-full" />
+              ))}
+            </div>
+          ) : (
+            <TopStoresTable stores={topStores} />
+          )}
+        </div>
       </div>
     </div>
   );
