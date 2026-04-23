@@ -85,13 +85,13 @@ export default function StoresPage() {
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-1 h-6 rounded-full bg-gradient-to-b from-indigo-500 to-violet-500" />
-            <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">
+            <div className="w-1 h-6 rounded-full bg-gradient-to-b from-orange-500 to-amber-500" />
+            <p className="text-xs font-semibold text-orange-600 uppercase tracking-wider">
               Stores
             </p>
           </div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">店舗管理</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="text-3xl font-bold text-stone-900 tracking-tight">店舗管理</h1>
+          <p className="text-sm text-stone-500 mt-1">
             全 {stores.length} 店舗 · {prefectureCount} 都道府県 · {totalCampaigns} キャンペーン
           </p>
         </div>
@@ -114,19 +114,19 @@ export default function StoresPage() {
             label: "総店舗数",
             value: stores.length,
             icon: <IconStore size={18} />,
-            color: "from-indigo-500 to-violet-500",
+            color: "from-orange-500 to-amber-500",
           },
           {
             label: "稼働中",
             value: activeCount,
             icon: <IconCircleCheck size={18} />,
-            color: "from-emerald-500 to-teal-500",
+            color: "from-amber-500 to-yellow-500",
           },
           {
             label: "展開都道府県",
             value: prefectureCount,
             icon: <IconStore size={18} />,
-            color: "from-blue-500 to-cyan-500",
+            color: "from-rose-500 to-orange-500",
           },
           {
             label: "総キャンペーン",
@@ -142,10 +142,10 @@ export default function StoresPage() {
               {icon}
             </div>
             <div>
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+              <p className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">
                 {label}
               </p>
-              <p className="text-xl font-bold text-slate-900 tabular-nums leading-tight">
+              <p className="text-xl font-bold text-stone-900 tabular-nums leading-tight">
                 {value}
               </p>
             </div>
@@ -158,7 +158,7 @@ export default function StoresPage() {
         <div className="relative flex-1 max-w-md">
           <IconSearch
             size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            className="absolute left-3 top-1/2 -transtone-y-1/2 text-stone-400"
           />
           <input
             type="text"
@@ -191,7 +191,7 @@ export default function StoresPage() {
             クリア
           </button>
         )}
-        <div className="ml-auto text-xs text-slate-500">
+        <div className="ml-auto text-xs text-stone-500">
           {filtered.length} / {stores.length} 店舗を表示
         </div>
       </div>
@@ -207,13 +207,13 @@ export default function StoresPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="card p-16 text-center">
-          <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-            <IconStore size={28} className="text-slate-400" />
+          <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-4">
+            <IconStore size={28} className="text-stone-400" />
           </div>
-          <p className="text-slate-600 font-semibold mb-1">
+          <p className="text-stone-600 font-semibold mb-1">
             {stores.length === 0 ? "店舗がまだ登録されていません" : "該当する店舗がありません"}
           </p>
-          <p className="text-slate-400 text-sm mb-4">
+          <p className="text-stone-400 text-sm mb-4">
             {stores.length === 0
               ? "「店舗を追加」ボタンから登録を開始しましょう"
               : "検索条件を変更してください"}
@@ -229,22 +229,22 @@ export default function StoresPage() {
         <div className="space-y-4">
           {Object.entries(prefGroups).map(([pref, prefStores]) => (
             <div key={pref} className="card overflow-hidden">
-              <div className="px-5 py-3 bg-slate-50/60 border-b border-slate-100 flex items-center justify-between">
+              <div className="px-5 py-3 bg-stone-50/60 border-b border-stone-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                  <span className="text-sm font-bold text-slate-800">{pref}</span>
-                  <span className="text-xs text-slate-500">
+                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                  <span className="text-sm font-bold text-stone-800">{pref}</span>
+                  <span className="text-xs text-stone-500">
                     {prefStores.length} 店舗
                   </span>
                 </div>
-                <div className="text-xs text-slate-500">
+                <div className="text-xs text-stone-500">
                   稼働中 {prefStores.filter((s) => s.isActive).length} /{" "}
                   {prefStores.length}
                 </div>
               </div>
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider bg-white">
+                  <tr className="text-left text-[11px] font-semibold text-stone-500 uppercase tracking-wider bg-white">
                     <th className="px-5 py-2.5">店舗名</th>
                     <th className="px-5 py-2.5">市区町村</th>
                     <th className="px-5 py-2.5 text-center">キャンペーン</th>
@@ -252,29 +252,29 @@ export default function StoresPage() {
                     <th className="px-5 py-2.5 text-right">操作</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-stone-100">
                   {prefStores.map((store) => (
                     <tr
                       key={store.id}
-                      className="hover:bg-slate-50/60 transition-colors group"
+                      className="hover:bg-stone-50/60 transition-colors group"
                     >
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-3">
                           <div
                             className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${
                               store.isActive
-                                ? "bg-gradient-to-br from-indigo-500 to-violet-500 text-white"
-                                : "bg-slate-100 text-slate-400"
+                                ? "bg-gradient-to-br from-orange-500 to-amber-500 text-white"
+                                : "bg-stone-100 text-stone-400"
                             }`}
                           >
                             {store.name.charAt(0)}
                           </div>
-                          <span className="font-semibold text-slate-900">
+                          <span className="font-semibold text-stone-900">
                             {store.name}
                           </span>
                         </div>
                       </td>
-                      <td className="px-5 py-3 text-slate-500">{store.city ?? "—"}</td>
+                      <td className="px-5 py-3 text-stone-500">{store.city ?? "—"}</td>
                       <td className="px-5 py-3 text-center">
                         <span className="badge-neutral tabular-nums">
                           {store._count?.campaigns ?? 0}
@@ -283,12 +283,12 @@ export default function StoresPage() {
                       <td className="px-5 py-3">
                         {store.isActive ? (
                           <span className="badge-success">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                             稼働中
                           </span>
                         ) : (
                           <span className="badge-neutral">
-                            <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-stone-400" />
                             停止
                           </span>
                         )}
@@ -300,21 +300,21 @@ export default function StoresPage() {
                               setEditStore(store);
                               setShowForm(true);
                             }}
-                            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-stone-500 hover:text-orange-600 hover:bg-orange-50 transition-colors"
                             title="編集"
                           >
                             <IconEdit size={14} />
                           </button>
                           <button
                             onClick={() => handleToggleActive(store)}
-                            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-stone-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
                             title={store.isActive ? "停止" : "有効化"}
                           >
                             <IconPower size={14} />
                           </button>
                           <button
                             onClick={() => handleDelete(store.id)}
-                            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-stone-500 hover:text-red-600 hover:bg-red-50 transition-colors"
                             title="削除"
                           >
                             <IconTrash size={14} />

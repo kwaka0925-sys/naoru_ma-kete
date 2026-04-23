@@ -9,13 +9,13 @@ export default function ImportPage() {
       {/* ヘッダー */}
       <div>
         <div className="flex items-center gap-2 mb-2">
-          <div className="w-1 h-6 rounded-full bg-gradient-to-b from-indigo-500 to-violet-500" />
-          <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">
+          <div className="w-1 h-6 rounded-full bg-gradient-to-b from-orange-500 to-amber-500" />
+          <p className="text-xs font-semibold text-orange-600 uppercase tracking-wider">
             Data Import
           </p>
         </div>
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">データ取込</h1>
-        <p className="text-sm text-slate-500 mt-1">
+        <h1 className="text-3xl font-bold text-stone-900 tracking-tight">データ取込</h1>
+        <p className="text-sm text-stone-500 mt-1">
           ホットペッパービューティ サロンボードのCSVをアップロードして分析データとして取り込み
         </p>
       </div>
@@ -29,12 +29,12 @@ export default function ImportPage() {
         <div className="space-y-4">
           <div className="card p-5">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+              <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-orange-600">
                 <IconUpload size={16} />
               </div>
-              <h3 className="font-bold text-sm text-slate-900">CSVの取得方法</h3>
+              <h3 className="font-bold text-sm text-stone-900">CSVの取得方法</h3>
             </div>
-            <ol className="text-sm text-slate-600 space-y-2">
+            <ol className="text-sm text-stone-600 space-y-2">
               {[
                 "サロンボードにログイン",
                 "「レポート」→「広告レポート」を開く",
@@ -42,7 +42,7 @@ export default function ImportPage() {
                 "「CSVダウンロード」をクリック",
               ].map((step, i) => (
                 <li key={i} className="flex gap-2.5">
-                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 text-[10px] font-bold flex items-center justify-center">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-orange-100 text-orange-600 text-[10px] font-bold flex items-center justify-center">
                     {i + 1}
                   </span>
                   <span>{step}</span>
@@ -52,7 +52,7 @@ export default function ImportPage() {
           </div>
 
           <div className="card p-5">
-            <h3 className="font-bold text-sm mb-3 text-slate-900">対応カラム</h3>
+            <h3 className="font-bold text-sm mb-3 text-stone-900">対応カラム</h3>
             <div className="text-xs space-y-2">
               {[
                 ["サロン名・店舗名", "必須"],
@@ -64,14 +64,14 @@ export default function ImportPage() {
               ].map(([col, req]) => (
                 <div
                   key={col}
-                  className="flex items-center justify-between py-1.5 border-b border-slate-100 last:border-0"
+                  className="flex items-center justify-between py-1.5 border-b border-stone-100 last:border-0"
                 >
-                  <span className="text-slate-700">{col}</span>
+                  <span className="text-stone-700">{col}</span>
                   <span
                     className={
                       req === "必須"
                         ? "badge bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-600/10"
-                        : "badge bg-slate-100 text-slate-500"
+                        : "badge bg-stone-100 text-stone-500"
                     }
                   >
                     {req}

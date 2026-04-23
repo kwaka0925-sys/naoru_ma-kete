@@ -117,17 +117,17 @@ export default function CsvUploader() {
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       done
-                        ? "bg-emerald-500 text-white shadow-sm"
+                        ? "bg-amber-500 text-white shadow-sm"
                         : active
-                        ? "bg-gradient-to-br from-indigo-500 to-violet-500 text-white shadow-sm ring-4 ring-indigo-100"
-                        : "bg-slate-100 text-slate-400"
+                        ? "bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-sm ring-4 ring-orange-100"
+                        : "bg-stone-100 text-stone-400"
                     }`}
                   >
                     {done ? <IconCircleCheck size={14} /> : i + 1}
                   </div>
                   <span
                     className={`text-sm font-semibold ${
-                      active ? "text-slate-900" : done ? "text-emerald-600" : "text-slate-400"
+                      active ? "text-stone-900" : done ? "text-amber-600" : "text-stone-400"
                     }`}
                   >
                     {s.label}
@@ -136,7 +136,7 @@ export default function CsvUploader() {
                 {i < STEPS.length - 1 && (
                   <div
                     className={`flex-1 h-0.5 mx-3 rounded-full transition-all ${
-                      done ? "bg-emerald-500" : "bg-slate-100"
+                      done ? "bg-amber-500" : "bg-stone-100"
                     }`}
                   />
                 )}
@@ -163,20 +163,20 @@ export default function CsvUploader() {
               onDrop={handleDrop}
               className={`relative border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all ${
                 dragging
-                  ? "border-indigo-400 bg-indigo-50/50 scale-[1.01]"
-                  : "border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/30"
+                  ? "border-orange-400 bg-orange-50/50 scale-[1.01]"
+                  : "border-stone-200 hover:border-orange-300 hover:bg-orange-50/30"
               }`}
             >
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white mx-auto mb-4 shadow-lg shadow-indigo-500/20">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white mx-auto mb-4 shadow-lg shadow-orange-500/20">
                 <IconUpload size={22} />
               </div>
-              <p className="text-base font-semibold text-slate-800">
+              <p className="text-base font-semibold text-stone-800">
                 クリックしてCSVファイルを選択
               </p>
-              <p className="text-sm text-slate-500 mt-1">
+              <p className="text-sm text-stone-500 mt-1">
                 または、ここにドラッグ＆ドロップ
               </p>
-              <p className="text-xs text-slate-400 mt-3">UTF-8 / Shift-JIS 対応 · 最大50MB</p>
+              <p className="text-xs text-stone-400 mt-3">UTF-8 / Shift-JIS 対応 · 最大50MB</p>
             </div>
             <input
               ref={fileInputRef}
@@ -201,9 +201,9 @@ export default function CsvUploader() {
             {REQUIRED_FIELDS.map(({ key, label, required }) => (
               <div
                 key={key}
-                className="flex flex-col sm:flex-row sm:items-center gap-2 p-3 rounded-xl bg-slate-50/50 border border-slate-100"
+                className="flex flex-col sm:flex-row sm:items-center gap-2 p-3 rounded-xl bg-stone-50/50 border border-stone-100"
               >
-                <label className="text-sm font-semibold text-slate-700 w-40 flex-shrink-0 flex items-center gap-1">
+                <label className="text-sm font-semibold text-stone-700 w-40 flex-shrink-0 flex items-center gap-1">
                   {label}
                   {required && <span className="text-red-500">*</span>}
                 </label>
@@ -230,9 +230,9 @@ export default function CsvUploader() {
           </div>
 
           {/* ROI計算用 */}
-          <div className="pt-4 border-t border-slate-100">
-            <h3 className="text-sm font-bold text-slate-900 mb-1">ROI計算用のデフォルト値</h3>
-            <p className="text-xs text-slate-500 mb-3">
+          <div className="pt-4 border-t border-stone-100">
+            <h3 className="text-sm font-bold text-stone-900 mb-1">ROI計算用のデフォルト値</h3>
+            <p className="text-xs text-stone-500 mb-3">
               未設定の場合でも各店舗で後から個別に変更可能です
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -265,29 +265,29 @@ export default function CsvUploader() {
 
           {/* プレビュー */}
           {preview.length > 0 && (
-            <div className="pt-4 border-t border-slate-100">
-              <p className="text-sm font-bold text-slate-900 mb-2">プレビュー (先頭5行)</p>
-              <div className="overflow-x-auto rounded-xl border border-slate-200">
+            <div className="pt-4 border-t border-stone-100">
+              <p className="text-sm font-bold text-stone-900 mb-2">プレビュー (先頭5行)</p>
+              <div className="overflow-x-auto rounded-xl border border-stone-200">
                 <table className="text-xs w-full">
                   <thead>
-                    <tr className="bg-slate-50">
+                    <tr className="bg-stone-50">
                       {headers.map((h) => (
                         <th
                           key={h}
-                          className="px-3 py-2 text-left font-semibold text-slate-600 whitespace-nowrap border-b border-slate-200"
+                          className="px-3 py-2 text-left font-semibold text-stone-600 whitespace-nowrap border-b border-stone-200"
                         >
                           {h}
                         </th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-stone-100">
                     {preview.map((row, i) => (
-                      <tr key={i} className="hover:bg-slate-50/50">
+                      <tr key={i} className="hover:bg-stone-50/50">
                         {headers.map((h) => (
                           <td
                             key={h}
-                            className="px-3 py-2 text-slate-700 whitespace-nowrap"
+                            className="px-3 py-2 text-stone-700 whitespace-nowrap"
                           >
                             {row[h] ?? ""}
                           </td>
@@ -322,42 +322,42 @@ export default function CsvUploader() {
             <div
               className={`w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center ${
                 result.imported > 0
-                  ? "bg-gradient-to-br from-emerald-400 to-teal-500 shadow-lg shadow-emerald-500/30"
-                  : "bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/30"
+                  ? "bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/30"
+                  : "bg-gradient-to-br from-rose-400 to-red-500 shadow-lg shadow-rose-500/30"
               } text-white`}
             >
               {result.imported > 0 ? <IconCircleCheck size={28} /> : <IconClose size={28} />}
             </div>
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="text-xl font-bold text-stone-900">
               {result.imported > 0 ? "インポート完了" : "インポート結果"}
             </h2>
-            <p className="text-sm text-slate-500 mt-1">
+            <p className="text-sm text-stone-500 mt-1">
               {result.total} 件中 {result.imported} 件をインポート ({result.skipped} 件スキップ)
             </p>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <div className="rounded-xl bg-slate-50 border border-slate-100 p-3 text-center">
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+            <div className="rounded-xl bg-stone-50 border border-stone-100 p-3 text-center">
+              <p className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">
                 合計
               </p>
-              <p className="text-xl font-bold text-slate-900 tabular-nums mt-1">
+              <p className="text-xl font-bold text-stone-900 tabular-nums mt-1">
                 {result.total}
-              </p>
-            </div>
-            <div className="rounded-xl bg-emerald-50 border border-emerald-100 p-3 text-center">
-              <p className="text-[10px] font-semibold text-emerald-700 uppercase tracking-wider">
-                成功
-              </p>
-              <p className="text-xl font-bold text-emerald-600 tabular-nums mt-1">
-                {result.imported}
               </p>
             </div>
             <div className="rounded-xl bg-amber-50 border border-amber-100 p-3 text-center">
               <p className="text-[10px] font-semibold text-amber-700 uppercase tracking-wider">
-                スキップ
+                成功
               </p>
               <p className="text-xl font-bold text-amber-600 tabular-nums mt-1">
+                {result.imported}
+              </p>
+            </div>
+            <div className="rounded-xl bg-orange-50 border border-orange-100 p-3 text-center">
+              <p className="text-[10px] font-semibold text-orange-700 uppercase tracking-wider">
+                スキップ
+              </p>
+              <p className="text-xl font-bold text-orange-600 tabular-nums mt-1">
                 {result.skipped}
               </p>
             </div>

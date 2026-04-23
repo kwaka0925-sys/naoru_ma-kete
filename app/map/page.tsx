@@ -10,10 +10,10 @@ import { IconCalendar, IconClose, IconMap } from "@/components/ui/Icons";
 const JapanMapClient = dynamic(() => import("@/components/map/JapanMapClient"), {
   ssr: false,
   loading: () => (
-    <div className="flex items-center justify-center h-[500px] bg-slate-50 rounded-xl">
+    <div className="flex items-center justify-center h-[500px] bg-stone-50 rounded-xl">
       <div className="flex flex-col items-center gap-3">
-        <div className="w-10 h-10 rounded-full border-2 border-slate-200 border-t-indigo-500 animate-spin" />
-        <span className="text-slate-400 text-sm font-medium">地図を読み込み中...</span>
+        <div className="w-10 h-10 rounded-full border-2 border-stone-200 border-t-orange-500 animate-spin" />
+        <span className="text-stone-400 text-sm font-medium">地図を読み込み中...</span>
       </div>
     </div>
   ),
@@ -129,18 +129,18 @@ export default function MapPage() {
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-1 h-6 rounded-full bg-gradient-to-b from-indigo-500 to-violet-500" />
-            <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">
+            <div className="w-1 h-6 rounded-full bg-gradient-to-b from-orange-500 to-amber-500" />
+            <p className="text-xs font-semibold text-orange-600 uppercase tracking-wider">
               Geographic Analytics
             </p>
           </div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">地図分析</h1>
-          <p className="text-sm text-slate-500 mt-1 flex items-center gap-1.5">
+          <h1 className="text-3xl font-bold text-stone-900 tracking-tight">地図分析</h1>
+          <p className="text-sm text-stone-500 mt-1 flex items-center gap-1.5">
             <IconCalendar size={14} />
             <span>
               {defaultFrom} 〜 {defaultTo}
             </span>
-            <span className="text-slate-300 mx-1">·</span>
+            <span className="text-stone-300 mx-1">·</span>
             <span>全国 {activePrefs} 都道府県のデータ</span>
           </p>
         </div>
@@ -149,10 +149,10 @@ export default function MapPage() {
       {/* フィルターバー */}
       <div className="card p-4 flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
             期間
           </span>
-          <div className="inline-flex bg-slate-50 rounded-lg p-1">
+          <div className="inline-flex bg-stone-50 rounded-lg p-1">
             {[
               { v: 1, label: "1ヶ月" },
               { v: 3, label: "3ヶ月" },
@@ -163,8 +163,8 @@ export default function MapPage() {
                 onClick={() => setMonths(o.v)}
                 className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
                   months === o.v
-                    ? "bg-white text-indigo-600 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
+                    ? "bg-white text-orange-600 shadow-sm"
+                    : "text-stone-500 hover:text-stone-700"
                 }`}
               >
                 {o.label}
@@ -173,10 +173,10 @@ export default function MapPage() {
           </div>
         </div>
 
-        <div className="h-6 w-px bg-slate-200" />
+        <div className="h-6 w-px bg-stone-200" />
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
             媒体
           </span>
           <select
@@ -193,21 +193,21 @@ export default function MapPage() {
           </select>
         </div>
 
-        <div className="h-6 w-px bg-slate-200" />
+        <div className="h-6 w-px bg-stone-200" />
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
             指標
           </span>
-          <div className="inline-flex bg-slate-50 rounded-lg p-1">
+          <div className="inline-flex bg-stone-50 rounded-lg p-1">
             {METRIC_OPTIONS.map((o) => (
               <button
                 key={o.key}
                 onClick={() => setMetric(o.key)}
                 className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
                   metric === o.key
-                    ? "bg-white text-indigo-600 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
+                    ? "bg-white text-orange-600 shadow-sm"
+                    : "text-stone-500 hover:text-stone-700"
                 }`}
               >
                 {o.label}
@@ -224,31 +224,31 @@ export default function MapPage() {
             <h2 className="section-title">都道府県マップ</h2>
             <div className="flex items-center gap-3 text-xs">
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm bg-slate-200" />
-                <span className="text-slate-500">データなし</span>
+                <span className="w-2.5 h-2.5 rounded-sm bg-stone-200" />
+                <span className="text-stone-500">データなし</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span
                   className="w-2.5 h-2.5 rounded-sm"
                   style={{ background: "rgb(244,63,94)" }}
                 />
-                <span className="text-slate-500">低</span>
+                <span className="text-stone-500">低</span>
               </div>
-              <div className="h-1 w-16 rounded-full bg-gradient-to-r from-rose-500 via-amber-400 to-emerald-500" />
+              <div className="h-1 w-16 rounded-full bg-gradient-to-r from-rose-500 via-amber-400 to-amber-500" />
               <div className="flex items-center gap-1.5">
                 <span
                   className="w-2.5 h-2.5 rounded-sm"
                   style={{ background: "rgb(200,185,120)" }}
                 />
-                <span className="text-slate-500">高</span>
+                <span className="text-stone-500">高</span>
               </div>
             </div>
           </div>
           {loading ? (
             <div className="h-[500px] flex items-center justify-center">
               <div className="flex flex-col items-center gap-3">
-                <div className="w-10 h-10 rounded-full border-2 border-slate-200 border-t-indigo-500 animate-spin" />
-                <span className="text-slate-400 text-sm font-medium">読み込み中...</span>
+                <div className="w-10 h-10 rounded-full border-2 border-stone-200 border-t-orange-500 animate-spin" />
+                <span className="text-stone-400 text-sm font-medium">読み込み中...</span>
               </div>
             </div>
           ) : (
@@ -273,10 +273,10 @@ export default function MapPage() {
           <div className="space-y-1 overflow-y-auto max-h-[500px] -mr-2 pr-2 scrollbar-hide">
             {sortedData.length === 0 ? (
               <div className="py-10 text-center">
-                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-2">
-                  <IconMap size={20} className="text-slate-400" />
+                <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-2">
+                  <IconMap size={20} className="text-stone-400" />
                 </div>
-                <p className="text-slate-400 text-sm">データがありません</p>
+                <p className="text-stone-400 text-sm">データがありません</p>
               </div>
             ) : (
               sortedData.map((d, i) => {
@@ -287,13 +287,13 @@ export default function MapPage() {
                     onClick={() => setSelected(d)}
                     className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-sm transition-all ${
                       isSelected
-                        ? "bg-gradient-to-r from-indigo-50 to-violet-50 ring-1 ring-indigo-200 shadow-sm"
-                        : "hover:bg-slate-50"
+                        ? "bg-gradient-to-r from-orange-50 to-amber-50 ring-1 ring-orange-200 shadow-sm"
+                        : "hover:bg-stone-50"
                     }`}
                   >
                     <span
                       className={`text-[10px] font-bold w-5 text-center tabular-nums ${
-                        i < 3 ? "text-amber-500" : "text-slate-400"
+                        i < 3 ? "text-amber-500" : "text-stone-400"
                       }`}
                     >
                       {i + 1}
@@ -304,16 +304,16 @@ export default function MapPage() {
                     />
                     <span
                       className={`flex-1 truncate font-medium ${
-                        isSelected ? "text-indigo-700" : "text-slate-700"
+                        isSelected ? "text-orange-700" : "text-stone-700"
                       }`}
                     >
                       {d.prefecture}
                     </span>
                     <div className="text-right flex-shrink-0">
-                      <p className="font-bold text-xs tabular-nums text-slate-900">
+                      <p className="font-bold text-xs tabular-nums text-stone-900">
                         {formatMetric(d)}
                       </p>
-                      <p className="text-[10px] text-slate-400">{d.storeCount}店舗</p>
+                      <p className="text-[10px] text-stone-400">{d.storeCount}店舗</p>
                     </div>
                   </button>
                 );
@@ -328,50 +328,50 @@ export default function MapPage() {
         <div className="card p-6 animate-fade-in-up">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shadow-sm">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-sm">
                 <IconMap size={20} className="text-white" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-900">
+                <h2 className="text-lg font-bold text-stone-900">
                   {selected.prefecture}
                 </h2>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-stone-500">
                   {selected.storeCount} 店舗のデータ
                 </p>
               </div>
             </div>
             <button
               onClick={() => setSelected(null)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
             >
               <IconClose size={16} />
             </button>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {[
-              { label: "店舗数", value: `${selected.storeCount} 店舗`, color: "text-slate-900" },
-              { label: "広告費", value: formatJPY(selected.metrics.spend), color: "text-slate-900" },
-              { label: "リード数", value: `${selected.metrics.leads} 件`, color: "text-blue-600" },
-              { label: "契約数", value: `${Math.round(selected.metrics.contracts)} 件`, color: "text-slate-900" },
+              { label: "店舗数", value: `${selected.storeCount} 店舗`, color: "text-stone-900" },
+              { label: "広告費", value: formatJPY(selected.metrics.spend), color: "text-stone-900" },
+              { label: "リード数", value: `${selected.metrics.leads} 件`, color: "text-rose-600" },
+              { label: "契約数", value: `${Math.round(selected.metrics.contracts)} 件`, color: "text-stone-900" },
               {
                 label: "ROI",
                 value: formatPercent(selected.metrics.roi),
                 color:
                   selected.metrics.roi && selected.metrics.roi > 0
-                    ? "text-emerald-600"
+                    ? "text-amber-600"
                     : "text-red-500",
               },
               {
                 label: "CPA",
                 value: selected.metrics.cpa ? formatJPY(selected.metrics.cpa) : "—",
-                color: "text-violet-600",
+                color: "text-amber-600",
               },
             ].map(({ label, value, color }) => (
               <div
                 key={label}
-                className="rounded-xl bg-slate-50 border border-slate-100 p-3"
+                className="rounded-xl bg-stone-50 border border-stone-100 p-3"
               >
-                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                <p className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">
                   {label}
                 </p>
                 <p className={`text-base font-bold mt-1 tabular-nums ${color}`}>{value}</p>

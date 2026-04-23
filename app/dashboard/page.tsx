@@ -85,25 +85,25 @@ export default function DashboardPage() {
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-1 h-6 rounded-full bg-gradient-to-b from-indigo-500 to-violet-500" />
-            <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">
+            <div className="w-1 h-6 rounded-full bg-gradient-to-b from-orange-500 to-amber-500" />
+            <p className="text-xs font-semibold text-orange-600 uppercase tracking-wider">
               Overview
             </p>
           </div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-3xl font-bold text-stone-900 tracking-tight">
             マーケティングダッシュボード
           </h1>
-          <p className="text-sm text-slate-500 mt-1 flex items-center gap-1.5">
+          <p className="text-sm text-stone-500 mt-1 flex items-center gap-1.5">
             <IconCalendar size={14} />
             <span>
               {defaultFrom} 〜 {defaultTo}
             </span>
-            <span className="text-slate-300 mx-1">·</span>
+            <span className="text-stone-300 mx-1">·</span>
             <span>全国100店舗のマーケティング効果を一元管理</span>
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="inline-flex bg-white rounded-xl border border-slate-200 shadow-sm p-1">
+          <div className="inline-flex bg-white rounded-xl border border-stone-200 shadow-sm p-1">
             {[
               { v: 1, label: "1ヶ月" },
               { v: 3, label: "3ヶ月" },
@@ -115,8 +115,8 @@ export default function DashboardPage() {
                 onClick={() => setMonths(o.v)}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   months === o.v
-                    ? "bg-indigo-600 text-white shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
+                    ? "bg-orange-600 text-white shadow-sm"
+                    : "text-stone-500 hover:text-stone-700"
                 }`}
               >
                 {o.label}
@@ -219,10 +219,10 @@ export default function DashboardPage() {
                           {media === "META" ? "f" : media === "TIKTOK" ? "♪" : "HPB"}
                         </div>
                         <div>
-                          <p className="font-bold text-slate-900 text-sm leading-tight">
+                          <p className="font-bold text-stone-900 text-sm leading-tight">
                             {MEDIA_LABELS[media]}
                           </p>
-                          <p className="text-[10px] text-slate-400 font-medium">
+                          <p className="text-[10px] text-stone-400 font-medium">
                             {metrics.spend > 0 ? "稼働中" : "データなし"}
                           </p>
                         </div>
@@ -230,7 +230,7 @@ export default function DashboardPage() {
                       <span
                         className={`text-xs font-bold tabular-nums ${
                           metrics.roi && metrics.roi > 0
-                            ? "text-emerald-600"
+                            ? "text-amber-600"
                             : "text-red-500"
                         }`}
                       >
@@ -239,34 +239,34 @@ export default function DashboardPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mb-1">
+                        <p className="text-[10px] text-stone-500 font-semibold uppercase tracking-wider mb-1">
                           広告費
                         </p>
-                        <p className="text-base font-bold text-slate-900 tabular-nums">
+                        <p className="text-base font-bold text-stone-900 tabular-nums">
                           {formatJPY(metrics.spend)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mb-1">
+                        <p className="text-[10px] text-stone-500 font-semibold uppercase tracking-wider mb-1">
                           リード
                         </p>
-                        <p className="text-base font-bold text-slate-900 tabular-nums">
+                        <p className="text-base font-bold text-stone-900 tabular-nums">
                           {formatNumber(metrics.leads)} 件
                         </p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mb-1">
+                        <p className="text-[10px] text-stone-500 font-semibold uppercase tracking-wider mb-1">
                           契約数
                         </p>
-                        <p className="text-base font-bold text-slate-900 tabular-nums">
+                        <p className="text-base font-bold text-stone-900 tabular-nums">
                           {Math.round(metrics.contracts)} 件
                         </p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mb-1">
+                        <p className="text-[10px] text-stone-500 font-semibold uppercase tracking-wider mb-1">
                           CPA
                         </p>
-                        <p className="text-base font-bold text-slate-900 tabular-nums">
+                        <p className="text-base font-bold text-stone-900 tabular-nums">
                           {metrics.cpa ? formatJPY(metrics.cpa) : "—"}
                         </p>
                       </div>
@@ -310,7 +310,7 @@ export default function DashboardPage() {
               </p>
             </div>
             <span className="badge-success">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse-dot" />
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse-dot" />
               Live
             </span>
           </div>

@@ -56,25 +56,25 @@ export default function StoreForm({ store, onClose, onSaved }: Props) {
 
   return (
     <div
-      className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in-up"
+      className="fixed inset-0 bg-stone-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in-up"
       onClick={onClose}
     >
       <div
         className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-100">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white shadow-sm">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white shadow-sm">
               <IconStore size={16} />
             </div>
-            <h2 className="text-base font-bold text-slate-900">
+            <h2 className="text-base font-bold text-stone-900">
               {store ? "店舗を編集" : "店舗を追加"}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
           >
             <IconClose size={16} />
           </button>
@@ -143,16 +143,16 @@ export default function StoreForm({ store, onClose, onSaved }: Props) {
             />
           </div>
 
-          <label className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100 cursor-pointer hover:bg-slate-100/80 transition-colors">
+          <label className="flex items-center gap-2.5 p-3 rounded-xl bg-stone-50 border border-stone-100 cursor-pointer hover:bg-stone-100/80 transition-colors">
             <input
               type="checkbox"
               checked={form.isActive}
               onChange={(e) => set("isActive", e.target.checked)}
-              className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500"
+              className="w-4 h-4 rounded text-orange-600 focus:ring-orange-500"
             />
             <div>
-              <p className="text-sm font-semibold text-slate-800">稼働中</p>
-              <p className="text-xs text-slate-500">
+              <p className="text-sm font-semibold text-stone-800">稼働中</p>
+              <p className="text-xs text-stone-500">
                 分析対象に含めます
               </p>
             </div>
