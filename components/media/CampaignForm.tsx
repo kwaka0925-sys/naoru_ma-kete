@@ -100,14 +100,14 @@ export default function CampaignForm({ onClose, onSaved, initialMedia }: Props) 
 
   return (
     <div
-      className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in-up"
+      className="fixed inset-0 bg-stone-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in-up"
       onClick={onClose}
     >
       <div
         className="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden max-h-[92vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-100 flex-shrink-0">
           <div className="flex items-center gap-3">
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-sm"
@@ -116,13 +116,13 @@ export default function CampaignForm({ onClose, onSaved, initialMedia }: Props) 
               <IconBarChart size={16} />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">キャンペーンデータ入力</h2>
-              <p className="text-xs text-slate-500">{MEDIA_LABELS[form.media]}</p>
+              <h2 className="text-base font-bold text-stone-900">キャンペーンデータ入力</h2>
+              <p className="text-xs text-stone-500">{MEDIA_LABELS[form.media]}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
           >
             <IconClose size={16} />
           </button>
@@ -202,7 +202,7 @@ export default function CampaignForm({ onClose, onSaved, initialMedia }: Props) 
           </div>
 
           <div className="pt-2">
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+            <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
               パフォーマンス
             </p>
             <div className="grid grid-cols-3 gap-3">
@@ -243,7 +243,7 @@ export default function CampaignForm({ onClose, onSaved, initialMedia }: Props) 
           </div>
 
           <div className="pt-2">
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+            <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
               ROI計算用
             </p>
             <div className="grid grid-cols-2 gap-3">
@@ -275,35 +275,35 @@ export default function CampaignForm({ onClose, onSaved, initialMedia }: Props) 
           </div>
 
           {showForecast && (
-            <div className="rounded-xl bg-gradient-to-br from-indigo-50 to-violet-50 border border-indigo-100 p-4 animate-fade-in-up">
+            <div className="rounded-xl bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100 p-4 animate-fade-in-up">
               <div className="flex items-center gap-2 mb-2">
-                <IconSparkles size={14} className="text-indigo-600" />
-                <p className="text-xs font-bold text-indigo-700 uppercase tracking-wider">
+                <IconSparkles size={14} className="text-orange-600" />
+                <p className="text-xs font-bold text-orange-700 uppercase tracking-wider">
                   予測値
                 </p>
               </div>
               <div className="grid grid-cols-3 gap-3 text-sm">
                 <div>
-                  <p className="text-[10px] text-indigo-500 font-semibold uppercase tracking-wider">
+                  <p className="text-[10px] text-orange-500 font-semibold uppercase tracking-wider">
                     契約数
                   </p>
-                  <p className="font-bold text-indigo-900 tabular-nums">
+                  <p className="font-bold text-orange-900 tabular-nums">
                     {showForecast.contracts} 件
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] text-indigo-500 font-semibold uppercase tracking-wider">
+                  <p className="text-[10px] text-orange-500 font-semibold uppercase tracking-wider">
                     売上
                   </p>
-                  <p className="font-bold text-indigo-900 tabular-nums">
+                  <p className="font-bold text-orange-900 tabular-nums">
                     ¥{showForecast.revenue.toLocaleString()}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] text-indigo-500 font-semibold uppercase tracking-wider">
+                  <p className="text-[10px] text-orange-500 font-semibold uppercase tracking-wider">
                     CPA
                   </p>
-                  <p className="font-bold text-indigo-900 tabular-nums">
+                  <p className="font-bold text-orange-900 tabular-nums">
                     {showForecast.cpa ? `¥${showForecast.cpa.toLocaleString()}` : "—"}
                   </p>
                 </div>
@@ -312,7 +312,7 @@ export default function CampaignForm({ onClose, onSaved, initialMedia }: Props) 
           )}
         </form>
 
-        <div className="px-6 py-4 border-t border-slate-100 flex gap-3 flex-shrink-0 bg-slate-50/50">
+        <div className="px-6 py-4 border-t border-stone-100 flex gap-3 flex-shrink-0 bg-stone-50/50">
           <button type="button" onClick={onClose} className="btn-secondary flex-1 justify-center">
             キャンセル
           </button>

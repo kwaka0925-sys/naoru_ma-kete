@@ -18,7 +18,7 @@ import { MEDIA_LABELS, MEDIA_COLORS, type MediaType } from "@/lib/types";
 import { IconPlus, IconCalendar, IconBarChart } from "@/components/ui/Icons";
 
 const TABS: { key: MediaType | "ALL"; label: string; color: string }[] = [
-  { key: "ALL", label: "全媒体", color: "#6366f1" },
+  { key: "ALL", label: "全媒体", color: "#ea580c" },
   { key: "META", label: "Meta広告", color: "#1877F2" },
   { key: "TIKTOK", label: "TikTok広告", color: "#FF0050" },
   { key: "HOTPEPPER", label: "ホットペッパー", color: "#E2001B" },
@@ -92,23 +92,23 @@ export default function MediaPage() {
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-1 h-6 rounded-full bg-gradient-to-b from-indigo-500 to-violet-500" />
-            <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">
+            <div className="w-1 h-6 rounded-full bg-gradient-to-b from-orange-500 to-amber-500" />
+            <p className="text-xs font-semibold text-orange-600 uppercase tracking-wider">
               Media Analytics
             </p>
           </div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">媒体別分析</h1>
-          <p className="text-sm text-slate-500 mt-1 flex items-center gap-1.5">
+          <h1 className="text-3xl font-bold text-stone-900 tracking-tight">媒体別分析</h1>
+          <p className="text-sm text-stone-500 mt-1 flex items-center gap-1.5">
             <IconCalendar size={14} />
             <span>
               {defaultFrom} 〜 {defaultTo}
             </span>
-            <span className="text-slate-300 mx-1">·</span>
+            <span className="text-stone-300 mx-1">·</span>
             <span>Meta / TikTok / HPB の詳細指標</span>
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="inline-flex bg-white rounded-xl border border-slate-200 shadow-sm p-1">
+          <div className="inline-flex bg-white rounded-xl border border-stone-200 shadow-sm p-1">
             {[
               { v: 3, label: "3ヶ月" },
               { v: 6, label: "6ヶ月" },
@@ -119,8 +119,8 @@ export default function MediaPage() {
                 onClick={() => setMonths(o.v)}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   months === o.v
-                    ? "bg-indigo-600 text-white shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
+                    ? "bg-orange-600 text-white shadow-sm"
+                    : "text-stone-500 hover:text-stone-700"
                 }`}
               >
                 {o.label}
@@ -135,15 +135,15 @@ export default function MediaPage() {
       </div>
 
       {/* タブ */}
-      <div className="flex flex-wrap gap-1 bg-white border border-slate-200 shadow-sm p-1 rounded-xl w-fit">
+      <div className="flex flex-wrap gap-1 bg-white border border-stone-200 shadow-sm p-1 rounded-xl w-fit">
         {TABS.map(({ key, label, color }) => (
           <button
             key={key}
             onClick={() => setTab(key)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
               tab === key
-                ? "bg-slate-900 text-white shadow-sm"
-                : "text-slate-600 hover:bg-slate-50"
+                ? "bg-stone-900 text-white shadow-sm"
+                : "text-stone-600 hover:bg-stone-50"
             }`}
           >
             <span
@@ -173,11 +173,11 @@ export default function MediaPage() {
         </div>
       ) : filteredByMedia.length === 0 ? (
         <div className="card p-16 text-center">
-          <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-            <IconBarChart size={28} className="text-slate-400" />
+          <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-4">
+            <IconBarChart size={28} className="text-stone-400" />
           </div>
-          <p className="text-slate-600 font-semibold mb-1">データがありません</p>
-          <p className="text-slate-400 text-sm">「データ入力」ボタンまたはCSV取込で登録してください</p>
+          <p className="text-stone-600 font-semibold mb-1">データがありません</p>
+          <p className="text-stone-400 text-sm">「データ入力」ボタンまたはCSV取込で登録してください</p>
         </div>
       ) : (
         <>
@@ -207,20 +207,20 @@ export default function MediaPage() {
                         {media === "META" ? "f" : media === "TIKTOK" ? "♪" : "H"}
                       </div>
                       <div>
-                        <p className="font-bold text-slate-900">{MEDIA_LABELS[media]}</p>
-                        <p className="text-xs text-slate-400 font-medium">
+                        <p className="font-bold text-stone-900">{MEDIA_LABELS[media]}</p>
+                        <p className="text-xs text-stone-400 font-medium">
                           {defaultFrom} 〜 {defaultTo}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                      <p className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">
                         ROI
                       </p>
                       <p
                         className={`text-xl font-bold tabular-nums ${
                           metrics.roi && metrics.roi > 0
-                            ? "text-emerald-600"
+                            ? "text-amber-600"
                             : "text-red-500"
                         }`}
                       >
@@ -230,7 +230,7 @@ export default function MediaPage() {
                   </div>
 
                   {/* プライマリKPIs (3カラム) */}
-                  <div className="grid grid-cols-3 gap-3 mb-4 pb-4 border-b border-slate-100">
+                  <div className="grid grid-cols-3 gap-3 mb-4 pb-4 border-b border-stone-100">
                     {[
                       { label: "広告費", value: formatJPY(metrics.spend) },
                       { label: "リード数", value: `${formatNumber(metrics.leads)} 件` },
@@ -240,10 +240,10 @@ export default function MediaPage() {
                       },
                     ].map(({ label, value }) => (
                       <div key={label}>
-                        <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                        <p className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider mb-1">
                           {label}
                         </p>
-                        <p className="text-lg font-bold text-slate-900 tabular-nums">
+                        <p className="text-lg font-bold text-stone-900 tabular-nums">
                           {value}
                         </p>
                       </div>
@@ -270,10 +270,10 @@ export default function MediaPage() {
                       },
                     ].map(({ label, value }) => (
                       <div key={label}>
-                        <p className="text-[10px] text-slate-500 font-medium mb-0.5">
+                        <p className="text-[10px] text-stone-500 font-medium mb-0.5">
                           {label}
                         </p>
-                        <p className="font-semibold text-slate-700 tabular-nums">
+                        <p className="font-semibold text-stone-700 tabular-nums">
                           {value}
                         </p>
                       </div>
@@ -291,15 +291,15 @@ export default function MediaPage() {
                 <h2 className="section-title">月別トレンド</h2>
                 <p className="section-subtitle mt-0.5">媒体ごとの推移を比較</p>
               </div>
-              <div className="flex gap-1 bg-slate-50 p-1 rounded-xl">
+              <div className="flex gap-1 bg-stone-50 p-1 rounded-xl">
                 {METRIC_OPTIONS.map((o) => (
                   <button
                     key={o.key}
                     onClick={() => setChartMetric(o.key)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                       chartMetric === o.key
-                        ? "bg-white text-indigo-600 shadow-sm ring-1 ring-slate-200/60"
-                        : "text-slate-500 hover:text-slate-700"
+                        ? "bg-white text-orange-600 shadow-sm ring-1 ring-stone-200/60"
+                        : "text-stone-500 hover:text-stone-700"
                     }`}
                   >
                     {o.label}
@@ -317,15 +317,15 @@ export default function MediaPage() {
                     </linearGradient>
                   ))}
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#eef2f7" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#f5f0ea" vertical={false} />
                 <XAxis
                   dataKey="period"
-                  tick={{ fontSize: 12, fill: "#64748b" }}
-                  axisLine={{ stroke: "#e2e8f0" }}
+                  tick={{ fontSize: 12, fill: "#78716c" }}
+                  axisLine={{ stroke: "#e7e5e4" }}
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fontSize: 11, fill: "#94a3b8" }}
+                  tick={{ fontSize: 11, fill: "#a8a29e" }}
                   axisLine={false}
                   tickLine={false}
                   tickFormatter={(v) => {
@@ -339,8 +339,8 @@ export default function MediaPage() {
                 <Tooltip
                   contentStyle={{
                     borderRadius: 12,
-                    border: "1px solid #e2e8f0",
-                    boxShadow: "0 8px 24px rgba(15, 23, 42, 0.08)",
+                    border: "1px solid #e7e5e4",
+                    boxShadow: "0 8px 24px rgba(120, 53, 15, 0.08)",
                     fontSize: 12,
                   }}
                   formatter={(val: number) =>

@@ -104,7 +104,7 @@ export default function JapanMapClient({ data, getColor, formatMetric, onSelect,
             >
               <circle
                 r={Math.min(3 + d.storeCount * 1.5, 12)}
-                fill="#4f46e5"
+                fill="#dc2626"
                 fillOpacity={0.7}
                 stroke="#ffffff"
                 strokeWidth={1}
@@ -118,14 +118,14 @@ export default function JapanMapClient({ data, getColor, formatMetric, onSelect,
       {/* ツールチップ */}
       {tooltip && (
         <div
-          className="absolute bg-slate-900 text-white text-xs rounded-xl px-3 py-2 pointer-events-none z-10 shadow-xl border border-white/10 backdrop-blur-sm"
+          className="absolute bg-stone-900 text-white text-xs rounded-xl px-3 py-2 pointer-events-none z-10 shadow-xl border border-white/10 backdrop-blur-sm"
           style={{ left: tooltip.x + 12, top: tooltip.y - 48 }}
         >
           <p className="font-bold text-sm">{tooltip.pref.prefecture}</p>
-          <p className="text-indigo-300 font-semibold tabular-nums">
+          <p className="text-orange-300 font-semibold tabular-nums">
             {formatMetric(tooltip.pref)}
           </p>
-          <p className="text-slate-400 text-[10px] mt-0.5">
+          <p className="text-stone-400 text-[10px] mt-0.5">
             {tooltip.pref.storeCount} 店舗
           </p>
         </div>
