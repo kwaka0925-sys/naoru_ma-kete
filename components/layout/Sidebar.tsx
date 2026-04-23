@@ -8,6 +8,7 @@ import {
   IconMap,
   IconStore,
   IconUpload,
+  IconSparkles,
 } from "@/components/ui/Icons";
 
 const NAV_ITEMS = [
@@ -16,6 +17,7 @@ const NAV_ITEMS = [
   { href: "/map", label: "地図分析", Icon: IconMap, desc: "都道府県別" },
   { href: "/stores", label: "店舗管理", Icon: IconStore, desc: "100店舗" },
   { href: "/import", label: "データ取込", Icon: IconUpload, desc: "CSVアップロード" },
+  { href: "/ai", label: "AI改善提案", Icon: IconSparkles, desc: "Claude分析", highlight: true },
 ];
 
 export default function Sidebar() {
@@ -53,7 +55,7 @@ export default function Sidebar() {
         <p className="px-3 pb-2 text-[10px] font-bold text-slate-500 tracking-[0.14em] uppercase">
           メニュー
         </p>
-        {NAV_ITEMS.map(({ href, label, Icon, desc }) => {
+        {NAV_ITEMS.map(({ href, label, Icon, desc, highlight }) => {
           const active = pathname.startsWith(href);
           return (
             <Link
@@ -62,6 +64,8 @@ export default function Sidebar() {
               className={`group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
                 active
                   ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/20"
+                  : highlight
+                  ? "text-slate-300 hover:bg-white/5 hover:text-white border border-indigo-500/20 bg-indigo-500/5"
                   : "text-slate-300 hover:bg-white/5 hover:text-white"
               }`}
             >
@@ -70,7 +74,7 @@ export default function Sidebar() {
               )}
               <span
                 className={`flex-shrink-0 ${
-                  active ? "text-white" : "text-slate-400 group-hover:text-white"
+                  active ? "text-white" : highlight ? "text-indigo-400 group-hover:text-indigo-300" : "text-slate-400 group-hover:text-white"
                 }`}
               >
                 <Icon size={18} />
@@ -85,6 +89,11 @@ export default function Sidebar() {
                   {desc}
                 </p>
               </div>
+              {highlight && !active && (
+                <span className="flex-shrink-0 text-[9px] font-bold tracking-wide bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded px-1.5 py-0.5">
+                  NEW
+                </span>
+              )}
             </Link>
           );
         })}
