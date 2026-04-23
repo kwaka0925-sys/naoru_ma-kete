@@ -1,0 +1,42 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Store {
+  id         String     @id @default(cuid())
+  name       String
+  prefecture String
+  city       String?
+  address    String?
+  lat        Float?
+  lng        Float?
+  isActive   Boolean    @default(true)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  campaigns  Campaign[]
+}
+
+model Campaign {
+  id            String   @id @default(cuid())
+  storeId       String
+  store         Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  media         String   // META | TIKTOK | HOTPEPPER
+  period        String   // YYYY-MM
+  spend         Float    @default(0)
+  impressions   Int?
+  clicks        Int?
+  leads         Int?
+  contractRate  Float?   // 0-100 (%)
+  avgOrderValue Float?   // 円
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([storeId, media, period])
+  @@index([period])
+  @@index([media])
+}
