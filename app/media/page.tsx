@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { format, subMonths, startOfMonth } from "date-fns";
 import {
   LineChart,
@@ -46,6 +46,45 @@ interface TrendEntry {
   [key: string]: string | number;
 }
 
+interface MetaInsightsPeriodMetrics {
+  period: string;
+  spend: number;
+  impressions: number;
+  clicks: number;
+  reach: number;
+  purchases: number;
+  purchaseValue: number;
+  ctr: number | null;
+  cpc: number | null;
+  cpm: number | null;
+  costPerPurchase: number | null;
+  roas: number | null;
+}
+
+interface MetaInsightsOverall {
+  spend: number;
+  impressions: number;
+  clicks: number;
+  reach: number;
+  purchases: number;
+  purchaseValue: number;
+  ctr: number | null;
+  cpc: number | null;
+  cpm: number | null;
+  costPerPurchase: number | null;
+  roas: number | null;
+}
+
+interface MetaInsightsResponse {
+  configured: boolean;
+  accountId: string;
+  accountName: string;
+  overall: MetaInsightsOverall;
+  byPeriod: MetaInsightsPeriodMetrics[];
+  rawRowCount: number;
+  fetchedAt: string;
+}
+
 const METRIC_OPTIONS = [
   { key: "spend", label: "広告費" },
   { key: "leads", label: "リード数" },
@@ -57,6 +96,8 @@ export default function MediaPage() {
   const [tab, setTab] = useState<MediaType | "ALL">("ALL");
   const [byMedia, setByMedia] = useState<MediaMetrics[]>([]);
   const [trend, setTrend] = useState<TrendEntry[]>([]);
+  const [metaLive, setMetaLive] = useState<MetaInsightsResponse | null>(null);
+  const [metaLiveError, setMetaLiveError] = useState<string | null>(null);
   const [months, setMonths] = useState(6);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -67,11 +108,37 @@ export default function MediaPage() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setMetaLiveError(null);
     try {
-      const res = await fetch(`/api/analytics/by-media?from=${defaultFrom}&to=${defaultTo}`);
-      const data = await res.json();
-      setByMedia(data.byMedia);
-      setTrend(data.trend);
+      const sinceDate = `${defaultFrom}-01`;
+      const [y, m] = defaultTo.split("-").map(Number);
+      const lastDay = new Date(Date.UTC(y, m, 0)).getUTCDate();
+      const untilDate = `${defaultTo}-${String(lastDay).padStart(2, "0")}`;
+
+      const [dbRes, metaRes] = await Promise.all([
+        fetch(`/api/analytics/by-media?from=${defaultFrom}&to=${defaultTo}`)
+          .then((r) => r.json())
+          .catch(() => ({ byMedia: [], trend: [] })),
+        fetch(`/api/meta/insights?since=${sinceDate}&until=${untilDate}`).then(
+          async (r) => {
+            const json = await r.json();
+            if (!r.ok) throw new Error(json.error ?? "Meta API取得に失敗");
+            return json as MetaInsightsResponse;
+          }
+        ),
+      ]).catch((e) => {
+        setMetaLiveError(e instanceof Error ? e.message : String(e));
+        return [{ byMedia: [], trend: [] }, null] as [
+          { byMedia: MediaMetrics[]; trend: TrendEntry[] },
+          MetaInsightsResponse | null,
+        ];
+      });
+      const [dbData, metaData] = (
+        Array.isArray(dbRes) ? [dbRes, null] : [dbRes, metaRes]
+      ) as [{ byMedia: MediaMetrics[]; trend: TrendEntry[] }, MetaInsightsResponse | null];
+      setByMedia(dbData.byMedia ?? []);
+      setTrend(dbData.trend ?? []);
+      setMetaLive(metaData);
     } finally {
       setLoading(false);
     }
@@ -81,10 +148,66 @@ export default function MediaPage() {
     fetchData();
   }, [fetchData]);
 
+  const mergedByMedia = useMemo<MediaMetrics[]>(() => {
+    const byDb = new Map(byMedia.map((m) => [m.media, m]));
+    const out: MediaMetrics[] = [];
+    for (const media of ["META", "TIKTOK", "HOTPEPPER"] as MediaType[]) {
+      if (media === "META" && metaLive) {
+        const dbMeta = byDb.get("META");
+        if (!dbMeta || dbMeta.metrics.spend === 0) {
+          const o = metaLive.overall;
+          out.push({
+            media: "META",
+            metrics: {
+              spend: o.spend,
+              impressions: o.impressions,
+              clicks: o.clicks,
+              leads: o.purchases,
+              contracts: o.purchases,
+              revenue: o.purchaseValue,
+              roi: o.roas != null ? (o.roas - 1) * 100 : null,
+              cpa: o.costPerPurchase,
+              cpl: o.costPerPurchase,
+              ctr: o.ctr,
+              roas: o.roas,
+            },
+          });
+          continue;
+        }
+      }
+      const existing = byDb.get(media);
+      if (existing) out.push(existing);
+    }
+    return out;
+  }, [byMedia, metaLive]);
+
+  const mergedTrend = useMemo<TrendEntry[]>(() => {
+    const map = new Map<string, TrendEntry>();
+    for (const t of trend) map.set(String(t.period), { ...t });
+    if (metaLive) {
+      for (const p of metaLive.byPeriod) {
+        const entry = map.get(p.period) ?? { period: p.period };
+        entry.META_spend = p.spend;
+        entry.META_leads = p.purchases;
+        entry.META_cpa = p.costPerPurchase ?? 0;
+        entry.META_roi = p.roas != null ? (p.roas - 1) * 100 : 0;
+        map.set(p.period, entry);
+      }
+    }
+    return Array.from(map.values()).sort((a, b) =>
+      String(a.period).localeCompare(String(b.period))
+    );
+  }, [trend, metaLive]);
+
   const activeMedia: MediaType[] =
     tab === "ALL" ? ["META", "TIKTOK", "HOTPEPPER"] : [tab];
 
-  const filteredByMedia = byMedia.filter((m) => activeMedia.includes(m.media));
+  const isMetaLiveSource = (media: MediaType) =>
+    media === "META" &&
+    !!metaLive &&
+    (byMedia.find((m) => m.media === "META")?.metrics.spend ?? 0) === 0;
+
+  const filteredByMedia = mergedByMedia.filter((m) => activeMedia.includes(m.media));
 
   return (
     <div className="p-8 space-y-6 max-w-[1600px] mx-auto">
@@ -133,6 +256,13 @@ export default function MediaPage() {
           </button>
         </div>
       </div>
+
+      {metaLiveError && (
+        <div className="card p-3 border border-rose-200 bg-rose-50 text-xs">
+          <p className="font-semibold text-rose-700 mb-0.5">Meta API取得エラー</p>
+          <p className="text-rose-600 break-all">{metaLiveError}</p>
+        </div>
+      )}
 
       {/* タブ */}
       <div className="flex flex-wrap gap-1 bg-white border border-stone-200 shadow-sm p-1 rounded-xl w-fit">
@@ -207,7 +337,18 @@ export default function MediaPage() {
                         {media === "META" ? "f" : media === "TIKTOK" ? "♪" : "H"}
                       </div>
                       <div>
-                        <p className="font-bold text-stone-900">{MEDIA_LABELS[media]}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-bold text-stone-900">{MEDIA_LABELS[media]}</p>
+                          {isMetaLiveSource(media) && (
+                            <span
+                              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold"
+                              style={{ background: "#E7F0FE", color: "#1877F2" }}
+                            >
+                              <span className="w-1 h-1 rounded-full bg-[#1877F2]" />
+                              API ライブ
+                            </span>
+                          )}
+                        </div>
                         <p className="text-xs text-stone-400 font-medium">
                           {defaultFrom} 〜 {defaultTo}
                         </p>
@@ -308,7 +449,7 @@ export default function MediaPage() {
               </div>
             </div>
             <ResponsiveContainer width="100%" height={320}>
-              <LineChart data={trend} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+              <LineChart data={mergedTrend} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                   {activeMedia.map((m) => (
                     <linearGradient key={m} id={`g-${m}`} x1="0" y1="0" x2="0" y2="1">

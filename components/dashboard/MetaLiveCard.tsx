@@ -22,6 +22,10 @@ interface CampaignMetrics extends Metrics {
   campaignName: string;
 }
 
+interface PeriodMetrics extends Metrics {
+  period: string;
+}
+
 interface InsightsResponse {
   configured: boolean;
   accountId: string;
@@ -29,6 +33,7 @@ interface InsightsResponse {
   currency: string;
   overall: Metrics;
   byCampaign: CampaignMetrics[];
+  byPeriod: PeriodMetrics[];
   rawRowCount: number;
   fetchedAt: string;
 }
@@ -139,6 +144,94 @@ export default function MetaLiveCard() {
               positive={data.overall.roas != null && data.overall.roas >= 1}
             />
           </div>
+
+          {data.byPeriod.length > 0 && (
+            <div className="mt-5">
+              <p className="text-xs font-semibold text-stone-600 mb-2">月別CPA推移</p>
+              {(() => {
+                const cpaValues = data.byPeriod
+                  .map((p) => p.costPerPurchase)
+                  .filter((v): v is number => v != null && v > 0);
+                const maxCpa = cpaValues.length > 0 ? Math.max(...cpaValues) : 0;
+                return (
+                  <div className="overflow-x-auto rounded-lg border border-stone-200">
+                    <table className="w-full text-xs">
+                      <thead className="bg-stone-50">
+                        <tr>
+                          <th className="text-left px-2.5 py-1.5 font-semibold text-stone-600">
+                            月
+                          </th>
+                          <th className="text-right px-2.5 py-1.5 font-semibold text-stone-600">
+                            広告費
+                          </th>
+                          <th className="text-right px-2.5 py-1.5 font-semibold text-stone-600">
+                            CV
+                          </th>
+                          <th className="text-right px-2.5 py-1.5 font-semibold text-stone-600">
+                            CPA
+                          </th>
+                          <th className="text-left px-2.5 py-1.5 font-semibold text-stone-600 w-1/3">
+                            CPA比較
+                          </th>
+                          <th className="text-right px-2.5 py-1.5 font-semibold text-stone-600">
+                            ROAS
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.byPeriod.map((p) => {
+                          const cpa = p.costPerPurchase;
+                          const ratio = cpa && maxCpa > 0 ? cpa / maxCpa : 0;
+                          return (
+                            <tr key={p.period} className="border-t border-stone-100">
+                              <td className="px-2.5 py-1.5 font-mono text-stone-700">
+                                {p.period}
+                              </td>
+                              <td className="px-2.5 py-1.5 text-right tabular-nums">
+                                {formatJPY(p.spend)}
+                              </td>
+                              <td className="px-2.5 py-1.5 text-right tabular-nums">
+                                {formatNumber(p.purchases)}
+                              </td>
+                              <td className="px-2.5 py-1.5 text-right tabular-nums font-semibold text-stone-900">
+                                {cpa ? formatJPY(cpa) : "—"}
+                              </td>
+                              <td className="px-2.5 py-1.5">
+                                {cpa ? (
+                                  <div className="h-2 rounded-full bg-stone-100 overflow-hidden">
+                                    <div
+                                      className="h-full rounded-full"
+                                      style={{
+                                        width: `${Math.max(ratio * 100, 4)}%`,
+                                        background: "#1877F2",
+                                      }}
+                                    />
+                                  </div>
+                                ) : (
+                                  <span className="text-stone-300">—</span>
+                                )}
+                              </td>
+                              <td className="px-2.5 py-1.5 text-right tabular-nums">
+                                <span
+                                  className={
+                                    p.roas && p.roas >= 1
+                                      ? "text-emerald-600 font-semibold"
+                                      : "text-stone-500"
+                                  }
+                                >
+                                  {p.roas ? `${p.roas.toFixed(2)}x` : "—"}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
 
           {data.byCampaign.length > 0 && (
             <div className="mt-5">
