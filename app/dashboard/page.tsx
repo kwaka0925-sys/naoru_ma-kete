@@ -48,7 +48,7 @@ type ChartMetric = "spend" | "leads" | "roi" | "cpa";
 export default function DashboardPage() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
-  const [period, setPeriod] = useState<PeriodSelection>({ mode: "range", months: 3 });
+  const [period, setPeriod] = useState<PeriodSelection>({ mode: "single", offset: 0 });
   const [seeding, setSeeding] = useState(false);
   const [chartMetric, setChartMetric] = useState<ChartMetric>("spend");
 
@@ -113,28 +113,6 @@ export default function DashboardPage() {
                 <button
                   key={o.offset}
                   onClick={() => setPeriod({ mode: "single", offset: o.offset })}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    active
-                      ? "bg-orange-600 text-white shadow-sm"
-                      : "text-stone-500 hover:text-stone-700"
-                  }`}
-                >
-                  {o.label}
-                </button>
-              );
-            })}
-          </div>
-          <div className="inline-flex bg-white rounded-xl border border-stone-200 shadow-sm p-1">
-            {[
-              { v: 3, label: "3ヶ月" },
-              { v: 6, label: "6ヶ月" },
-              { v: 12, label: "12ヶ月" },
-            ].map((o) => {
-              const active = period.mode === "range" && period.months === o.v;
-              return (
-                <button
-                  key={o.v}
-                  onClick={() => setPeriod({ mode: "range", months: o.v })}
                   className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                     active
                       ? "bg-orange-600 text-white shadow-sm"
