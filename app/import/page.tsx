@@ -1,6 +1,7 @@
 "use client";
 
 import CsvUploader from "@/components/import/CsvUploader";
+import MetaSyncCard from "@/components/import/MetaSyncCard";
 import { IconUpload } from "@/components/ui/Icons";
 
 export default function ImportPage() {
@@ -16,12 +17,13 @@ export default function ImportPage() {
         </div>
         <h1 className="text-3xl font-bold text-stone-900 tracking-tight">データ取込</h1>
         <p className="text-sm text-stone-500 mt-1">
-          ホットペッパービューティ サロンボードのCSVをアップロードして分析データとして取り込み
+          ホットペッパービューティCSV・Meta広告APIから実績データを取り込み
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-6">
+          <MetaSyncCard />
           <CsvUploader />
         </div>
 
