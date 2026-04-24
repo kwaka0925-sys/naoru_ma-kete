@@ -52,9 +52,11 @@ const METRIC_OPTIONS = [
 ];
 
 interface MetaRegionInfo {
+  mode?: "viewer" | "store";
   rawRowCount: number;
   mappedCount: number;
-  unmapped: Array<{ region: string; spend: number }>;
+  unmapped: Array<{ label?: string; region?: string; spend: number }>;
+  unmappedCount?: number;
   unmappedSpend: number;
   fetchedAt: string;
 }
@@ -69,6 +71,7 @@ export default function MapPage() {
   const [metaInfo, setMetaInfo] = useState<MetaRegionInfo | null>(null);
   const [sourceError, setSourceError] = useState<string | null>(null);
   const [mapStyle, setMapStyle] = useState<"simple" | "leaflet">("leaflet");
+  const [metaAggMode, setMetaAggMode] = useState<"viewer" | "store">("store");
 
   const resolved = resolvePeriod(period);
   const defaultTo = resolved.to;
@@ -83,7 +86,10 @@ export default function MapPage() {
     try {
       const params = new URLSearchParams({ from: defaultFrom, to: defaultTo });
       const endpoint = isMetaLive
-        ? `/api/meta/insights/by-region?${params}`
+        ? (() => {
+            params.set("mode", metaAggMode);
+            return `/api/meta/insights/by-region?${params}`;
+          })()
         : (() => {
             if (media) params.set("media", media);
             return `/api/analytics/by-prefecture?${params}`;
@@ -110,7 +116,7 @@ export default function MapPage() {
     } finally {
       setLoading(false);
     }
-  }, [defaultFrom, defaultTo, media, isMetaLive]);
+  }, [defaultFrom, defaultTo, media, isMetaLive, metaAggMode]);
 
   useEffect(() => {
     fetchData();
@@ -199,7 +205,7 @@ export default function MapPage() {
                   style={{ background: "#E7F0FE", color: "#1877F2" }}
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-[#1877F2] animate-pulse-dot" />
-                  Meta API ライブ
+                  Meta API ライブ · {metaAggMode === "store" ? "店舗所在地" : "配信先地域"}
                 </span>
               </>
             )}
@@ -254,6 +260,35 @@ export default function MapPage() {
           </select>
         </div>
 
+        {isMetaLive && (
+          <>
+            <div className="h-6 w-px bg-stone-200" />
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
+                集計軸
+              </span>
+              <div className="inline-flex bg-stone-50 rounded-lg p-1">
+                {[
+                  { key: "store" as const, label: "店舗所在地" },
+                  { key: "viewer" as const, label: "配信先地域" },
+                ].map((o) => (
+                  <button
+                    key={o.key}
+                    onClick={() => setMetaAggMode(o.key)}
+                    className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                      metaAggMode === o.key
+                        ? "bg-white text-orange-600 shadow-sm"
+                        : "text-stone-500 hover:text-stone-700"
+                    }`}
+                  >
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
         <div className="h-6 w-px bg-stone-200" />
 
         <div className="flex items-center gap-2">
@@ -290,21 +325,33 @@ export default function MapPage() {
       {isMetaLive && metaInfo && metaInfo.unmapped.length > 0 && (
         <div className="card p-4 border border-amber-200 bg-amber-50">
           <p className="text-sm font-semibold text-amber-800 mb-1">
-            都道府県にマッピングできなかった地域があります
+            {metaInfo.mode === "store"
+              ? "都道府県を判定できなかったキャンペーンがあります"
+              : "都道府県にマッピングできなかった地域があります"}
           </p>
           <p className="text-xs text-amber-800 mb-2">
-            Meta APIから返された {metaInfo.rawRowCount} 行のうち、{metaInfo.mappedCount}{" "}
-            都道府県にマッピング成功。未マッピング分の広告費: {formatJPY(metaInfo.unmappedSpend)}
+            Meta APIから返された {metaInfo.rawRowCount} 行のうち、
+            {metaInfo.mappedCount} 都道府県にマッピング成功。未マッピング分の広告費:{" "}
+            {formatJPY(metaInfo.unmappedSpend)}
+            {metaInfo.mode === "store" && (
+              <span className="block mt-1 text-amber-700">
+                キャンペーン名に地域識別子（例: 「【渋谷】」）を含めるか、
+                <span className="font-mono">lib/store-regions.ts</span>{" "}
+                にマッピングを追加してください。
+              </span>
+            )}
           </p>
           <details className="text-xs">
             <summary className="cursor-pointer text-amber-700 hover:text-amber-900">
-              未マッピングの地域を表示（上位{metaInfo.unmapped.length}件）
+              {metaInfo.mode === "store"
+                ? `未マッピングのキャンペーンを表示（${metaInfo.unmappedCount ?? metaInfo.unmapped.length}件）`
+                : `未マッピングの地域を表示（上位${metaInfo.unmapped.length}件）`}
             </summary>
-            <ul className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-0.5 text-amber-800">
+            <ul className="mt-2 space-y-0.5 text-amber-800">
               {metaInfo.unmapped.map((u, i) => (
-                <li key={i} className="flex justify-between">
-                  <span className="truncate">{u.region}</span>
-                  <span className="tabular-nums">{formatJPY(u.spend)}</span>
+                <li key={i} className="flex justify-between gap-4">
+                  <span className="truncate">{u.label ?? u.region ?? "(不明)"}</span>
+                  <span className="tabular-nums flex-shrink-0">{formatJPY(u.spend)}</span>
                 </li>
               ))}
             </ul>

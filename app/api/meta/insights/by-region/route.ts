@@ -7,6 +7,7 @@ import {
   type MetaInsightRow,
 } from "@/lib/meta-client";
 import { mapRegionToPrefecture } from "@/lib/meta-regions";
+import { matchAreaToPrefecture } from "@/lib/store-regions";
 import { PREFECTURES } from "@/lib/prefectures";
 
 export const dynamic = "force-dynamic";
@@ -64,6 +65,26 @@ function buildMetrics(base: {
   };
 }
 
+type AggBase = {
+  spend: number;
+  impressions: number;
+  clicks: number;
+  purchases: number;
+  revenue: number;
+};
+
+function emptyAgg(): AggBase {
+  return { spend: 0, impressions: 0, clicks: 0, purchases: 0, revenue: 0 };
+}
+
+function addInto(target: AggBase, add: AggBase) {
+  target.spend += add.spend;
+  target.impressions += add.impressions;
+  target.clicks += add.clicks;
+  target.purchases += add.purchases;
+  target.revenue += add.revenue;
+}
+
 export async function GET(req: NextRequest) {
   const accessToken = process.env.META_ACCESS_TOKEN;
   const accountId = process.env.META_AD_ACCOUNT_ID;
@@ -78,6 +99,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const since = searchParams.get("since") ?? searchParams.get("from") ?? undefined;
   const until = searchParams.get("until") ?? searchParams.get("to") ?? undefined;
+  const mode = (searchParams.get("mode") ?? "viewer") === "store" ? "store" : "viewer";
 
   let rows: MetaInsightRow[];
   try {
@@ -86,9 +108,9 @@ export async function GET(req: NextRequest) {
       accessToken,
       since: normalizePeriodToDate(since, "start"),
       until: normalizePeriodToDate(until, "end"),
-      breakdowns: ["region"],
-      level: "account",
-      timeIncrement: "all_days",
+      ...(mode === "viewer"
+        ? { breakdowns: ["region"], level: "account", timeIncrement: "all_days" }
+        : { level: "campaign", timeIncrement: "all_days" }),
     });
   } catch (e) {
     return NextResponse.json(
@@ -102,38 +124,36 @@ export async function GET(req: NextRequest) {
     ? [dominantConversionType]
     : ["omni_purchase", "purchase", "offsite_conversion.fb_pixel_purchase"];
 
-  const prefAgg = new Map<
-    string,
-    { spend: number; impressions: number; clicks: number; purchases: number; revenue: number; unmappedRegions: Set<string> }
-  >();
+  const prefAgg = new Map<string, AggBase>();
+  const unmapped: Array<{ region?: string; campaignName?: string; spend: number }> = [];
 
-  const unmapped: Array<{ region: string; spend: number }> = [];
-
-  for (const row of rows) {
-    const base = rowToBase(row, conversionTypes);
-    const pref = mapRegionToPrefecture(row.region);
-    if (!pref) {
-      if (row.region) {
-        unmapped.push({ region: row.region, spend: base.spend });
+  if (mode === "viewer") {
+    for (const row of rows) {
+      const base = rowToBase(row, conversionTypes);
+      const pref = mapRegionToPrefecture(row.region);
+      if (!pref) {
+        if (row.region) unmapped.push({ region: row.region, spend: base.spend });
+        continue;
       }
-      continue;
+      const entry = prefAgg.get(pref) ?? emptyAgg();
+      addInto(entry, base);
+      prefAgg.set(pref, entry);
     }
-    const entry =
-      prefAgg.get(pref) ??
-      {
-        spend: 0,
-        impressions: 0,
-        clicks: 0,
-        purchases: 0,
-        revenue: 0,
-        unmappedRegions: new Set<string>(),
-      };
-    entry.spend += base.spend;
-    entry.impressions += base.impressions;
-    entry.clicks += base.clicks;
-    entry.purchases += base.purchases;
-    entry.revenue += base.revenue;
-    prefAgg.set(pref, entry);
+  } else {
+    for (const row of rows) {
+      const base = rowToBase(row, conversionTypes);
+      const match = matchAreaToPrefecture(row.campaign_name);
+      if (!match) {
+        unmapped.push({
+          campaignName: row.campaign_name,
+          spend: base.spend,
+        });
+        continue;
+      }
+      const entry = prefAgg.get(match.prefecture) ?? emptyAgg();
+      addInto(entry, base);
+      prefAgg.set(match.prefecture, entry);
+    }
   }
 
   const byPrefecture: PrefectureEntry[] = PREFECTURES.filter((p) => prefAgg.has(p.name))
@@ -144,13 +164,18 @@ export async function GET(req: NextRequest) {
     }))
     .sort((a, b) => a.prefecture.localeCompare(b.prefecture, "ja"));
 
+  const unmappedSpend = unmapped.reduce((s, u) => s + u.spend, 0);
+  const unmappedAggregated = aggregateUnmapped(unmapped);
+
   return NextResponse.json({
     byPrefecture,
     meta: {
+      mode,
       rawRowCount: rows.length,
       mappedCount: byPrefecture.length,
-      unmapped: unmapped.slice(0, 20),
-      unmappedSpend: unmapped.reduce((s, u) => s + u.spend, 0),
+      unmapped: unmappedAggregated.slice(0, 30),
+      unmappedCount: unmappedAggregated.length,
+      unmappedSpend,
       conversion: {
         actionType: dominantConversionType,
         label: labelForConversionType(dominantConversionType),
@@ -159,6 +184,19 @@ export async function GET(req: NextRequest) {
       fetchedAt: new Date().toISOString(),
     },
   });
+}
+
+function aggregateUnmapped(
+  items: Array<{ region?: string; campaignName?: string; spend: number }>
+): Array<{ label: string; spend: number }> {
+  const map = new Map<string, number>();
+  for (const u of items) {
+    const label = u.campaignName ?? u.region ?? "(不明)";
+    map.set(label, (map.get(label) ?? 0) + u.spend);
+  }
+  return Array.from(map.entries())
+    .map(([label, spend]) => ({ label, spend }))
+    .sort((a, b) => b.spend - a.spend);
 }
 
 function normalizePeriodToDate(
