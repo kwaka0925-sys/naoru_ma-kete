@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import KpiCard, { KpiCardSkeleton } from "@/components/dashboard/KpiCard";
 import MediaComparisonChart from "@/components/dashboard/MediaComparisonChart";
 import TopStoresTable from "@/components/dashboard/TopStoresTable";
+import MetaLiveCard from "@/components/dashboard/MetaLiveCard";
 import { formatJPY, formatNumber, formatPercent } from "@/lib/calculations";
 import { MEDIA_LABELS, MEDIA_COLORS } from "@/lib/types";
 import type { MediaType } from "@/lib/types";
@@ -175,12 +176,17 @@ export default function DashboardPage() {
         )}
       </div>
 
+      {/* Meta広告 ライブ実績 (API直接取得) */}
+      <MetaLiveCard />
+
       {/* 媒体別カード (ブランドカラー) */}
       <div>
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h2 className="section-title">媒体別パフォーマンス</h2>
-            <p className="section-subtitle mt-0.5">各媒体の主要指標サマリー</p>
+            <h2 className="section-title">媒体別パフォーマンス（DB集計）</h2>
+            <p className="section-subtitle mt-0.5">
+              取込済みデータの主要指標サマリー（DB未接続時は0表示）
+            </p>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

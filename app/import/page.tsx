@@ -1,7 +1,7 @@
 "use client";
 
 import CsvUploader from "@/components/import/CsvUploader";
-import MetaSyncCard from "@/components/import/MetaSyncCard";
+import MetaInsightsCard from "@/components/import/MetaInsightsCard";
 import { IconUpload } from "@/components/ui/Icons";
 
 export default function ImportPage() {
@@ -23,7 +23,7 @@ export default function ImportPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <MetaSyncCard />
+          <MetaInsightsCard />
           <CsvUploader />
         </div>
 
