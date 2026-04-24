@@ -98,10 +98,10 @@ export default function Sidebar() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-60" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400" />
             </span>
-            <p className="text-[11px] font-semibold text-white">Meta API 接続済</p>
+            <p className="text-[11px] font-semibold text-white">Meta API ライブ取得</p>
           </div>
           <p className="text-[10px] text-stone-400 leading-relaxed">
-            TikTok API 連携は Phase 2
+            DB未接続・API直読み / TikTok 連携は Phase 2
           </p>
         </div>
       </div>
