@@ -75,6 +75,12 @@ interface MetaInsightsOverall {
   roas: number | null;
 }
 
+interface MetaConversionInfo {
+  actionType: string | null;
+  label: string;
+  autoDetected: boolean;
+}
+
 interface MetaInsightsResponse {
   configured: boolean;
   accountId: string;
@@ -82,6 +88,7 @@ interface MetaInsightsResponse {
   overall: MetaInsightsOverall;
   byPeriod: MetaInsightsPeriodMetrics[];
   rawRowCount: number;
+  conversion?: MetaConversionInfo;
   fetchedAt: string;
 }
 
@@ -337,7 +344,7 @@ export default function MediaPage() {
                         {media === "META" ? "f" : media === "TIKTOK" ? "♪" : "H"}
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <p className="font-bold text-stone-900">{MEDIA_LABELS[media]}</p>
                           {isMetaLiveSource(media) && (
                             <span
@@ -346,6 +353,14 @@ export default function MediaPage() {
                             >
                               <span className="w-1 h-1 rounded-full bg-[#1877F2]" />
                               API ライブ
+                            </span>
+                          )}
+                          {media === "META" && metaLive?.conversion?.autoDetected && (
+                            <span
+                              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold"
+                              style={{ background: "#E7F0FE", color: "#1877F2" }}
+                            >
+                              CV基準: {metaLive.conversion.label}
                             </span>
                           )}
                         </div>

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   fetchMetaInsights,
   findActionValue,
+  detectDominantConversionType,
+  labelForConversionType,
   type MetaInsightRow,
 } from "@/lib/meta-client";
 import { mapRegionToPrefecture } from "@/lib/meta-regions";
@@ -9,12 +11,6 @@ import { PREFECTURES } from "@/lib/prefectures";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-
-const PURCHASE_TYPES = [
-  "omni_purchase",
-  "purchase",
-  "offsite_conversion.fb_pixel_purchase",
-];
 
 interface Metrics {
   spend: number;
@@ -36,12 +32,12 @@ interface PrefectureEntry {
   metrics: Metrics;
 }
 
-function rowToBase(row: MetaInsightRow) {
+function rowToBase(row: MetaInsightRow, conversionTypes: string[]) {
   const spend = Number(row.spend) || 0;
   const impressions = Number(row.impressions) || 0;
   const clicks = Number(row.clicks) || 0;
-  const purchases = findActionValue(row.actions, PURCHASE_TYPES) ?? 0;
-  const revenue = findActionValue(row.action_values, PURCHASE_TYPES) ?? 0;
+  const purchases = findActionValue(row.actions, conversionTypes) ?? 0;
+  const revenue = findActionValue(row.action_values, conversionTypes) ?? 0;
   return { spend, impressions, clicks, purchases, revenue };
 }
 
@@ -101,6 +97,11 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  const dominantConversionType = detectDominantConversionType(rows);
+  const conversionTypes = dominantConversionType
+    ? [dominantConversionType]
+    : ["omni_purchase", "purchase", "offsite_conversion.fb_pixel_purchase"];
+
   const prefAgg = new Map<
     string,
     { spend: number; impressions: number; clicks: number; purchases: number; revenue: number; unmappedRegions: Set<string> }
@@ -109,7 +110,7 @@ export async function GET(req: NextRequest) {
   const unmapped: Array<{ region: string; spend: number }> = [];
 
   for (const row of rows) {
-    const base = rowToBase(row);
+    const base = rowToBase(row, conversionTypes);
     const pref = mapRegionToPrefecture(row.region);
     if (!pref) {
       if (row.region) {
@@ -150,6 +151,11 @@ export async function GET(req: NextRequest) {
       mappedCount: byPrefecture.length,
       unmapped: unmapped.slice(0, 20),
       unmappedSpend: unmapped.reduce((s, u) => s + u.spend, 0),
+      conversion: {
+        actionType: dominantConversionType,
+        label: labelForConversionType(dominantConversionType),
+        autoDetected: !!dominantConversionType,
+      },
       fetchedAt: new Date().toISOString(),
     },
   });

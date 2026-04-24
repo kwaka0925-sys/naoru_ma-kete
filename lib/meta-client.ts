@@ -142,3 +142,97 @@ export function findActionValue(
 export function toPeriod(dateStart: string): string {
   return dateStart.slice(0, 7);
 }
+
+export const HIGH_INTENT_CONVERSION_TYPES: string[] = [
+  // Lead系（整体/サロン/店舗ビジネスの本命）
+  "lead",
+  "omni_lead",
+  "offsite_conversion.fb_pixel_lead",
+  "onsite_web_lead",
+  "onsite_web_app_lead",
+  "leadgen.other",
+  // 登録/申込
+  "complete_registration",
+  "offsite_conversion.fb_pixel_complete_registration",
+  "submit_application",
+  // お問い合わせ/予約
+  "contact",
+  "schedule",
+  "offsite_conversion.fb_pixel_schedule",
+  // 購入
+  "omni_purchase",
+  "purchase",
+  "offsite_conversion.fb_pixel_purchase",
+];
+
+export const LOW_INTENT_CONVERSION_TYPES: string[] = [
+  "omni_view_content",
+  "view_content",
+  "landing_page_view",
+];
+
+export const CONVERSION_TYPE_PRIORITY: string[] = [
+  ...HIGH_INTENT_CONVERSION_TYPES,
+  ...LOW_INTENT_CONVERSION_TYPES,
+];
+
+export function detectDominantConversionType(
+  rows: Array<{ actions?: MetaInsightAction[] }>
+): string | null {
+  const totals = new Map<string, number>();
+  for (const row of rows) {
+    if (!row.actions) continue;
+    for (const a of row.actions) {
+      if (!CONVERSION_TYPE_PRIORITY.includes(a.action_type)) continue;
+      const n = Number(a.value);
+      if (Number.isNaN(n) || n <= 0) continue;
+      totals.set(a.action_type, (totals.get(a.action_type) ?? 0) + n);
+    }
+  }
+  if (totals.size === 0) return null;
+
+  const pickFrom = (candidates: string[]): string | null => {
+    let best: string | null = null;
+    let bestCount = -1;
+    let bestPriority = Infinity;
+    for (const type of candidates) {
+      const count = totals.get(type);
+      if (count == null || count <= 0) continue;
+      const priority = candidates.indexOf(type);
+      if (count > bestCount || (count === bestCount && priority < bestPriority)) {
+        best = type;
+        bestCount = count;
+        bestPriority = priority;
+      }
+    }
+    return best;
+  };
+
+  return pickFrom(HIGH_INTENT_CONVERSION_TYPES) ?? pickFrom(LOW_INTENT_CONVERSION_TYPES);
+}
+
+export const CONVERSION_TYPE_LABELS: Record<string, string> = {
+  lead: "リード",
+  omni_lead: "リード（全体）",
+  "offsite_conversion.fb_pixel_lead": "リード（Pixel）",
+  onsite_web_lead: "リード（Meta内）",
+  onsite_web_app_lead: "リード（Metaアプリ）",
+  "leadgen.other": "リード（その他）",
+  complete_registration: "登録完了",
+  "offsite_conversion.fb_pixel_complete_registration": "登録完了（Pixel）",
+  submit_application: "申込",
+  contact: "問い合わせ",
+  schedule: "予約",
+  "offsite_conversion.fb_pixel_schedule": "予約（Pixel）",
+  omni_purchase: "購入",
+  purchase: "購入",
+  "offsite_conversion.fb_pixel_purchase": "購入（Pixel）",
+  omni_view_content: "コンテンツ閲覧",
+  view_content: "コンテンツ閲覧",
+  landing_page_view: "LP閲覧",
+};
+
+export function labelForConversionType(type: string | null | undefined): string {
+  if (!type) return "コンバージョン";
+  return CONVERSION_TYPE_LABELS[type] ?? type;
+}

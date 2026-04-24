@@ -5,17 +5,13 @@ import {
   findActionValue,
   normalizeAccountId,
   toPeriod,
+  detectDominantConversionType,
+  labelForConversionType,
   type MetaInsightRow,
 } from "@/lib/meta-client";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-
-const PURCHASE_TYPES = [
-  "omni_purchase",
-  "purchase",
-  "offsite_conversion.fb_pixel_purchase",
-];
 
 interface Metrics {
   spend: number;
@@ -57,14 +53,14 @@ function computeMetrics(base: Omit<Metrics, "ctr" | "cpc" | "cpm" | "costPerPurc
   };
 }
 
-function rowToBase(row: MetaInsightRow) {
+function rowToBase(row: MetaInsightRow, conversionTypes: string[]) {
   return {
     spend: Number(row.spend) || 0,
     impressions: Number(row.impressions) || 0,
     clicks: Number(row.clicks) || 0,
     reach: Number(row.reach) || 0,
-    purchases: findActionValue(row.actions, PURCHASE_TYPES) ?? 0,
-    purchaseValue: findActionValue(row.action_values, PURCHASE_TYPES) ?? 0,
+    purchases: findActionValue(row.actions, conversionTypes) ?? 0,
+    purchaseValue: findActionValue(row.action_values, conversionTypes) ?? 0,
   };
 }
 
@@ -116,6 +112,11 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  const dominantConversionType = detectDominantConversionType(all);
+  const conversionTypes = dominantConversionType
+    ? [dominantConversionType]
+    : ["omni_purchase", "purchase", "offsite_conversion.fb_pixel_purchase"];
+
   let overallBase = {
     spend: 0,
     impressions: 0,
@@ -128,7 +129,7 @@ export async function GET(req: NextRequest) {
   const byPeriodMap = new Map<string, PeriodMetrics>();
 
   for (const row of all) {
-    const base = rowToBase(row);
+    const base = rowToBase(row, conversionTypes);
     overallBase = addBase(overallBase, base);
 
     const cid = row.campaign_id ?? "unknown";
@@ -174,6 +175,11 @@ export async function GET(req: NextRequest) {
     byCampaign,
     byPeriod,
     rawRowCount: all.length,
+    conversion: {
+      actionType: dominantConversionType,
+      label: labelForConversionType(dominantConversionType),
+      autoDetected: !!dominantConversionType,
+    },
     fetchedAt: new Date().toISOString(),
   });
 }

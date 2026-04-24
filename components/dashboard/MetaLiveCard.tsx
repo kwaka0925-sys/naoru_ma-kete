@@ -26,6 +26,12 @@ interface PeriodMetrics extends Metrics {
   period: string;
 }
 
+interface ConversionInfo {
+  actionType: string | null;
+  label: string;
+  autoDetected: boolean;
+}
+
 interface InsightsResponse {
   configured: boolean;
   accountId: string;
@@ -35,6 +41,7 @@ interface InsightsResponse {
   byCampaign: CampaignMetrics[];
   byPeriod: PeriodMetrics[];
   rawRowCount: number;
+  conversion?: ConversionInfo;
   fetchedAt: string;
 }
 
@@ -147,7 +154,17 @@ export default function MetaLiveCard() {
 
           {data.byPeriod.length > 0 && (
             <div className="mt-5">
-              <p className="text-xs font-semibold text-stone-600 mb-2">月別CPA推移</p>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-semibold text-stone-600">月別CPA推移</p>
+                {data.conversion?.autoDetected && (
+                  <span
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                    style={{ background: "#E7F0FE", color: "#1877F2" }}
+                  >
+                    CV基準: {data.conversion.label}
+                  </span>
+                )}
+              </div>
               {(() => {
                 const cpaValues = data.byPeriod
                   .map((p) => p.costPerPurchase)
