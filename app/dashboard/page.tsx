@@ -8,7 +8,7 @@ import MetaLiveCard from "@/components/dashboard/MetaLiveCard";
 import { formatJPY, formatNumber, formatPercent } from "@/lib/calculations";
 import { MEDIA_LABELS, MEDIA_COLORS } from "@/lib/types";
 import type { MediaType } from "@/lib/types";
-import { format, subMonths, startOfMonth } from "date-fns";
+import { resolvePeriod, SINGLE_MONTH_OPTIONS, type PeriodSelection } from "@/lib/period";
 import {
   IconYen,
   IconUsers,
@@ -48,12 +48,13 @@ type ChartMetric = "spend" | "leads" | "roi" | "cpa";
 export default function DashboardPage() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
-  const [months, setMonths] = useState(3);
+  const [period, setPeriod] = useState<PeriodSelection>({ mode: "range", months: 3 });
   const [seeding, setSeeding] = useState(false);
   const [chartMetric, setChartMetric] = useState<ChartMetric>("spend");
 
-  const defaultTo = format(new Date(), "yyyy-MM");
-  const defaultFrom = format(subMonths(startOfMonth(new Date()), months - 1), "yyyy-MM");
+  const resolved = resolvePeriod(period);
+  const defaultTo = resolved.to;
+  const defaultFrom = resolved.from;
 
   const fetchSummary = useCallback(async () => {
     setLoading(true);
@@ -103,26 +104,47 @@ export default function DashboardPage() {
             <span>全国100店舗のマーケティング効果を一元管理</span>
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex bg-white rounded-xl border border-stone-200 shadow-sm p-1">
+            {SINGLE_MONTH_OPTIONS.map((o) => {
+              const active =
+                period.mode === "single" && period.offset === o.offset;
+              return (
+                <button
+                  key={o.offset}
+                  onClick={() => setPeriod({ mode: "single", offset: o.offset })}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    active
+                      ? "bg-orange-600 text-white shadow-sm"
+                      : "text-stone-500 hover:text-stone-700"
+                  }`}
+                >
+                  {o.label}
+                </button>
+              );
+            })}
+          </div>
           <div className="inline-flex bg-white rounded-xl border border-stone-200 shadow-sm p-1">
             {[
-              { v: 1, label: "1ヶ月" },
               { v: 3, label: "3ヶ月" },
               { v: 6, label: "6ヶ月" },
               { v: 12, label: "12ヶ月" },
-            ].map((o) => (
-              <button
-                key={o.v}
-                onClick={() => setMonths(o.v)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  months === o.v
-                    ? "bg-orange-600 text-white shadow-sm"
-                    : "text-stone-500 hover:text-stone-700"
-                }`}
-              >
-                {o.label}
-              </button>
-            ))}
+            ].map((o) => {
+              const active = period.mode === "range" && period.months === o.v;
+              return (
+                <button
+                  key={o.v}
+                  onClick={() => setPeriod({ mode: "range", months: o.v })}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    active
+                      ? "bg-orange-600 text-white shadow-sm"
+                      : "text-stone-500 hover:text-stone-700"
+                  }`}
+                >
+                  {o.label}
+                </button>
+              );
+            })}
           </div>
           {isEmpty && (
             <button onClick={handleSeed} disabled={seeding} className="btn-primary">
@@ -177,7 +199,11 @@ export default function DashboardPage() {
       </div>
 
       {/* Meta広告 ライブ実績 (API直接取得) */}
-      <MetaLiveCard />
+      <MetaLiveCard
+        since={resolved.sinceDate}
+        until={resolved.untilDate}
+        periodLabel={resolved.label}
+      />
 
       {/* 媒体別カード (ブランドカラー) */}
       <div>

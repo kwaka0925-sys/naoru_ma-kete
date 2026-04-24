@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { format, subMonths, startOfMonth } from "date-fns";
+import { resolvePeriod, SINGLE_MONTH_OPTIONS, type PeriodSelection } from "@/lib/period";
 import {
   LineChart,
   Line,
@@ -105,22 +105,21 @@ export default function MediaPage() {
   const [trend, setTrend] = useState<TrendEntry[]>([]);
   const [metaLive, setMetaLive] = useState<MetaInsightsResponse | null>(null);
   const [metaLiveError, setMetaLiveError] = useState<string | null>(null);
-  const [months, setMonths] = useState(6);
+  const [period, setPeriod] = useState<PeriodSelection>({ mode: "range", months: 6 });
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [chartMetric, setChartMetric] = useState("spend");
 
-  const defaultTo = format(new Date(), "yyyy-MM");
-  const defaultFrom = format(subMonths(startOfMonth(new Date()), months - 1), "yyyy-MM");
+  const resolved = resolvePeriod(period);
+  const defaultTo = resolved.to;
+  const defaultFrom = resolved.from;
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     setMetaLiveError(null);
     try {
-      const sinceDate = `${defaultFrom}-01`;
-      const [y, m] = defaultTo.split("-").map(Number);
-      const lastDay = new Date(Date.UTC(y, m, 0)).getUTCDate();
-      const untilDate = `${defaultTo}-${String(lastDay).padStart(2, "0")}`;
+      const sinceDate = resolved.sinceDate;
+      const untilDate = resolved.untilDate;
 
       const [dbRes, metaRes] = await Promise.all([
         fetch(`/api/analytics/by-media?from=${defaultFrom}&to=${defaultTo}`)
@@ -149,7 +148,7 @@ export default function MediaPage() {
     } finally {
       setLoading(false);
     }
-  }, [defaultFrom, defaultTo]);
+  }, [defaultFrom, defaultTo, resolved.sinceDate, resolved.untilDate]);
 
   useEffect(() => {
     fetchData();
@@ -237,25 +236,47 @@ export default function MediaPage() {
             <span>Meta / TikTok / HPB の詳細指標</span>
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex bg-white rounded-xl border border-stone-200 shadow-sm p-1">
+            {SINGLE_MONTH_OPTIONS.map((o) => {
+              const active =
+                period.mode === "single" && period.offset === o.offset;
+              return (
+                <button
+                  key={o.offset}
+                  onClick={() => setPeriod({ mode: "single", offset: o.offset })}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    active
+                      ? "bg-orange-600 text-white shadow-sm"
+                      : "text-stone-500 hover:text-stone-700"
+                  }`}
+                >
+                  {o.label}
+                </button>
+              );
+            })}
+          </div>
           <div className="inline-flex bg-white rounded-xl border border-stone-200 shadow-sm p-1">
             {[
               { v: 3, label: "3ヶ月" },
               { v: 6, label: "6ヶ月" },
               { v: 12, label: "12ヶ月" },
-            ].map((o) => (
-              <button
-                key={o.v}
-                onClick={() => setMonths(o.v)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  months === o.v
-                    ? "bg-orange-600 text-white shadow-sm"
-                    : "text-stone-500 hover:text-stone-700"
-                }`}
-              >
-                {o.label}
-              </button>
-            ))}
+            ].map((o) => {
+              const active = period.mode === "range" && period.months === o.v;
+              return (
+                <button
+                  key={o.v}
+                  onClick={() => setPeriod({ mode: "range", months: o.v })}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    active
+                      ? "bg-orange-600 text-white shadow-sm"
+                      : "text-stone-500 hover:text-stone-700"
+                  }`}
+                >
+                  {o.label}
+                </button>
+              );
+            })}
           </div>
           <button onClick={() => setShowForm(true)} className="btn-primary">
             <IconPlus size={16} />

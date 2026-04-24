@@ -45,7 +45,15 @@ interface InsightsResponse {
   fetchedAt: string;
 }
 
-export default function MetaLiveCard() {
+export default function MetaLiveCard({
+  since,
+  until,
+  periodLabel,
+}: {
+  since?: string;
+  until?: string;
+  periodLabel?: string;
+} = {}) {
   const [data, setData] = useState<InsightsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +62,10 @@ export default function MetaLiveCard() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/meta/insights");
+      const params = new URLSearchParams();
+      if (since) params.set("since", since);
+      if (until) params.set("until", until);
+      const res = await fetch(`/api/meta/insights?${params.toString()}`);
       const json = await res.json();
       if (!res.ok) {
         setError(typeof json.error === "string" ? json.error : "取得に失敗しました");
@@ -66,7 +77,7 @@ export default function MetaLiveCard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [since, until]);
 
   useEffect(() => {
     fetchData();
@@ -90,7 +101,7 @@ export default function MetaLiveCard() {
             <h2 className="section-title">Meta広告 ライブ実績</h2>
             <p className="section-subtitle mt-0.5">
               {data
-                ? `${data.accountName || data.accountId} · 直近90日`
+                ? `${data.accountName || data.accountId} · ${periodLabel ?? "直近90日"}`
                 : "Marketing APIから直接取得"}
             </p>
           </div>

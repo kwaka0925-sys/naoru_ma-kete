@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { format, subMonths, startOfMonth } from "date-fns";
 import { formatJPY, formatPercent } from "@/lib/calculations";
+import { resolvePeriod, SINGLE_MONTH_OPTIONS, type PeriodSelection } from "@/lib/period";
 import { MEDIA_LABELS, type MediaType } from "@/lib/types";
 import { IconCalendar, IconClose, IconMap } from "@/components/ui/Icons";
 
@@ -62,7 +62,7 @@ interface MetaRegionInfo {
 export default function MapPage() {
   const [data, setData] = useState<PrefData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [months, setMonths] = useState(3);
+  const [period, setPeriod] = useState<PeriodSelection>({ mode: "range", months: 3 });
   const [media, setMedia] = useState<MediaType | "">("");
   const [metric, setMetric] = useState("roi");
   const [selected, setSelected] = useState<PrefData | null>(null);
@@ -70,8 +70,9 @@ export default function MapPage() {
   const [sourceError, setSourceError] = useState<string | null>(null);
   const [mapStyle, setMapStyle] = useState<"simple" | "leaflet">("leaflet");
 
-  const defaultTo = format(new Date(), "yyyy-MM");
-  const defaultFrom = format(subMonths(startOfMonth(new Date()), months - 1), "yyyy-MM");
+  const resolved = resolvePeriod(period);
+  const defaultTo = resolved.to;
+  const defaultFrom = resolved.from;
 
   const isMetaLive = media === "META";
 
@@ -208,28 +209,49 @@ export default function MapPage() {
 
       {/* フィルターバー */}
       <div className="card p-4 flex flex-wrap items-center gap-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
             期間
           </span>
           <div className="inline-flex bg-stone-50 rounded-lg p-1">
+            {SINGLE_MONTH_OPTIONS.map((o) => {
+              const active =
+                period.mode === "single" && period.offset === o.offset;
+              return (
+                <button
+                  key={o.offset}
+                  onClick={() => setPeriod({ mode: "single", offset: o.offset })}
+                  className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                    active
+                      ? "bg-white text-orange-600 shadow-sm"
+                      : "text-stone-500 hover:text-stone-700"
+                  }`}
+                >
+                  {o.label}
+                </button>
+              );
+            })}
+          </div>
+          <div className="inline-flex bg-stone-50 rounded-lg p-1">
             {[
-              { v: 1, label: "1ヶ月" },
               { v: 3, label: "3ヶ月" },
               { v: 6, label: "6ヶ月" },
-            ].map((o) => (
-              <button
-                key={o.v}
-                onClick={() => setMonths(o.v)}
-                className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
-                  months === o.v
-                    ? "bg-white text-orange-600 shadow-sm"
-                    : "text-stone-500 hover:text-stone-700"
-                }`}
-              >
-                {o.label}
-              </button>
-            ))}
+            ].map((o) => {
+              const active = period.mode === "range" && period.months === o.v;
+              return (
+                <button
+                  key={o.v}
+                  onClick={() => setPeriod({ mode: "range", months: o.v })}
+                  className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                    active
+                      ? "bg-white text-orange-600 shadow-sm"
+                      : "text-stone-500 hover:text-stone-700"
+                  }`}
+                >
+                  {o.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
