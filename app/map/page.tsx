@@ -19,6 +19,18 @@ const JapanMapClient = dynamic(() => import("@/components/map/JapanMapClient"), 
   ),
 });
 
+const LeafletJapanMap = dynamic(() => import("@/components/map/LeafletJapanMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-[560px] bg-stone-50 rounded-xl">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-10 h-10 rounded-full border-2 border-stone-200 border-t-orange-500 animate-spin" />
+        <span className="text-stone-400 text-sm font-medium">地図を読み込み中...</span>
+      </div>
+    </div>
+  ),
+});
+
 interface PrefData {
   prefecture: string;
   storeCount: number;
@@ -56,6 +68,7 @@ export default function MapPage() {
   const [selected, setSelected] = useState<PrefData | null>(null);
   const [metaInfo, setMetaInfo] = useState<MetaRegionInfo | null>(null);
   const [sourceError, setSourceError] = useState<string | null>(null);
+  const [mapStyle, setMapStyle] = useState<"simple" | "leaflet">("leaflet");
 
   const defaultTo = format(new Date(), "yyyy-MM");
   const defaultFrom = format(subMonths(startOfMonth(new Date()), months - 1), "yyyy-MM");
@@ -301,27 +314,47 @@ export default function MapPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 地図 */}
         <div className="lg:col-span-2 card p-6">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-3 flex-wrap gap-3">
             <h2 className="section-title">都道府県マップ</h2>
-            <div className="flex items-center gap-3 text-xs">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm bg-stone-200" />
-                <span className="text-stone-500">データなし</span>
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="inline-flex bg-stone-50 rounded-lg p-1 text-xs">
+                {[
+                  { v: "leaflet", label: "地図付き" },
+                  { v: "simple", label: "シンプル" },
+                ].map((o) => (
+                  <button
+                    key={o.v}
+                    onClick={() => setMapStyle(o.v as "simple" | "leaflet")}
+                    className={`px-3 py-1 rounded-md font-semibold transition-all ${
+                      mapStyle === o.v
+                        ? "bg-white text-orange-600 shadow-sm"
+                        : "text-stone-500 hover:text-stone-700"
+                    }`}
+                  >
+                    {o.label}
+                  </button>
+                ))}
               </div>
-              <div className="flex items-center gap-1.5">
-                <span
-                  className="w-2.5 h-2.5 rounded-sm"
-                  style={{ background: "rgb(244,63,94)" }}
-                />
-                <span className="text-stone-500">低</span>
-              </div>
-              <div className="h-1 w-16 rounded-full bg-gradient-to-r from-rose-500 via-amber-400 to-amber-500" />
-              <div className="flex items-center gap-1.5">
-                <span
-                  className="w-2.5 h-2.5 rounded-sm"
-                  style={{ background: "rgb(200,185,120)" }}
-                />
-                <span className="text-stone-500">高</span>
+              <div className="flex items-center gap-3 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-stone-200" />
+                  <span className="text-stone-500">データなし</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className="w-2.5 h-2.5 rounded-sm"
+                    style={{ background: "rgb(244,63,94)" }}
+                  />
+                  <span className="text-stone-500">低</span>
+                </div>
+                <div className="h-1 w-16 rounded-full bg-gradient-to-r from-rose-500 via-amber-400 to-amber-500" />
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className="w-2.5 h-2.5 rounded-sm"
+                    style={{ background: "rgb(200,185,120)" }}
+                  />
+                  <span className="text-stone-500">高</span>
+                </div>
               </div>
             </div>
           </div>
@@ -332,6 +365,15 @@ export default function MapPage() {
                 <span className="text-stone-400 text-sm font-medium">読み込み中...</span>
               </div>
             </div>
+          ) : mapStyle === "leaflet" ? (
+            <LeafletJapanMap
+              data={data}
+              getColor={getColor}
+              formatMetric={formatMetric}
+              onSelect={setSelected}
+              selected={selected}
+              showStores={!isMetaLive}
+            />
           ) : (
             <JapanMapClient
               data={data}
