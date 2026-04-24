@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { formatJPY, formatNumber, formatPercent } from "@/lib/calculations";
+import { resolvePeriod, SINGLE_MONTH_OPTIONS } from "@/lib/period";
 import { IconSparkles, IconCircleCheck, IconClose } from "@/components/ui/Icons";
 
 interface StatusResponse {
@@ -182,28 +183,75 @@ export default function MetaInsightsCard() {
       </div>
 
       {/* 期間指定 */}
-      <div className="grid grid-cols-2 gap-3">
-        <label className="block">
-          <span className="text-xs font-semibold text-stone-600 mb-1 block">開始日（任意）</span>
-          <input
-            type="date"
-            value={since}
-            onChange={(e) => setSince(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-          />
-        </label>
-        <label className="block">
-          <span className="text-xs font-semibold text-stone-600 mb-1 block">終了日（任意）</span>
-          <input
-            type="date"
-            value={until}
-            onChange={(e) => setUntil(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-          />
-        </label>
+      <div className="space-y-3">
+        <div>
+          <span className="text-xs font-semibold text-stone-600 mb-1.5 block">
+            クイック選択
+          </span>
+          <div className="inline-flex bg-stone-50 rounded-lg p-1">
+            {SINGLE_MONTH_OPTIONS.map((o) => {
+              const p = resolvePeriod({ mode: "single", offset: o.offset });
+              const active = since === p.sinceDate && until === p.untilDate;
+              return (
+                <button
+                  key={o.offset}
+                  type="button"
+                  onClick={() => {
+                    setSince(p.sinceDate);
+                    setUntil(p.untilDate);
+                  }}
+                  className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                    active
+                      ? "bg-white text-orange-600 shadow-sm"
+                      : "text-stone-500 hover:text-stone-700"
+                  }`}
+                >
+                  {o.label}
+                </button>
+              );
+            })}
+            {(since || until) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSince("");
+                  setUntil("");
+                }}
+                className="px-3 py-1.5 rounded-md text-xs font-medium text-stone-400 hover:text-stone-700"
+              >
+                クリア
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <label className="block">
+            <span className="text-xs font-semibold text-stone-600 mb-1 block">
+              開始日（任意）
+            </span>
+            <input
+              type="date"
+              value={since}
+              onChange={(e) => setSince(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs font-semibold text-stone-600 mb-1 block">
+              終了日（任意）
+            </span>
+            <input
+              type="date"
+              value={until}
+              onChange={(e) => setUntil(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+            />
+          </label>
+        </div>
       </div>
       <p className="text-xs text-stone-500 -mt-2">
-        未指定の場合は直近90日分を取得します。
+        クイック選択または日付入力で指定。未指定の場合は直近90日分を取得します。
       </p>
 
       <button
