@@ -38,6 +38,12 @@ interface PeriodMetrics extends Metrics {
   period: string;
 }
 
+interface ConversionInfo {
+  actionType: string | null;
+  label: string;
+  autoDetected: boolean;
+}
+
 interface InsightsResponse {
   configured: boolean;
   accountId: string;
@@ -48,6 +54,7 @@ interface InsightsResponse {
   byCampaign: CampaignMetrics[];
   byPeriod: PeriodMetrics[];
   rawRowCount: number;
+  conversion?: ConversionInfo;
   fetchedAt: string;
 }
 
@@ -219,8 +226,18 @@ export default function MetaInsightsCard() {
         <div className="space-y-4">
           {/* サマリー */}
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-bold text-stone-900">集計結果</h3>
+            <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold text-stone-900">集計結果</h3>
+                {data.conversion?.autoDetected && (
+                  <span
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                    style={{ background: "#E7F0FE", color: "#1877F2" }}
+                  >
+                    CV基準: {data.conversion.label}
+                  </span>
+                )}
+              </div>
               <p className="text-[11px] text-stone-400">
                 取得時刻: {new Date(data.fetchedAt).toLocaleString("ja-JP")} · {data.rawRowCount} 行
               </p>
