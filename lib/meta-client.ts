@@ -16,6 +16,8 @@ export interface MetaInsightRow {
   actions?: MetaInsightAction[];
   action_values?: MetaInsightAction[];
   purchase_roas?: MetaInsightAction[];
+  region?: string;
+  country?: string;
   date_start: string;
   date_stop: string;
 }
@@ -37,16 +39,30 @@ export async function fetchMetaInsights(params: {
   accessToken: string;
   since?: string;
   until?: string;
+  breakdowns?: string[];
+  level?: "account" | "campaign" | "adset" | "ad";
+  timeIncrement?: "monthly" | "all_days" | number;
 }): Promise<MetaInsightRow[]> {
-  const { accountId, accessToken, since, until } = params;
+  const {
+    accountId,
+    accessToken,
+    since,
+    until,
+    breakdowns,
+    level = "campaign",
+    timeIncrement = "monthly",
+  } = params;
   const url = new URL(`${META_GRAPH_URL}/${normalizeAccountId(accountId)}/insights`);
   url.searchParams.set("access_token", accessToken);
   url.searchParams.set(
     "fields",
     "campaign_id,campaign_name,spend,impressions,clicks,reach,actions,action_values,purchase_roas"
   );
-  url.searchParams.set("level", "campaign");
-  url.searchParams.set("time_increment", "monthly");
+  url.searchParams.set("level", level);
+  url.searchParams.set("time_increment", String(timeIncrement));
+  if (breakdowns && breakdowns.length > 0) {
+    url.searchParams.set("breakdowns", breakdowns.join(","));
+  }
   if (since && until) {
     url.searchParams.set("time_range", JSON.stringify({ since, until }));
   } else {

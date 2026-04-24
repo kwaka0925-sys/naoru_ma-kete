@@ -39,6 +39,14 @@ const METRIC_OPTIONS = [
   { key: "leads", label: "リード数", unit: "件" },
 ];
 
+interface MetaRegionInfo {
+  rawRowCount: number;
+  mappedCount: number;
+  unmapped: Array<{ region: string; spend: number }>;
+  unmappedSpend: number;
+  fetchedAt: string;
+}
+
 export default function MapPage() {
   const [data, setData] = useState<PrefData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,22 +54,49 @@ export default function MapPage() {
   const [media, setMedia] = useState<MediaType | "">("");
   const [metric, setMetric] = useState("roi");
   const [selected, setSelected] = useState<PrefData | null>(null);
+  const [metaInfo, setMetaInfo] = useState<MetaRegionInfo | null>(null);
+  const [sourceError, setSourceError] = useState<string | null>(null);
 
   const defaultTo = format(new Date(), "yyyy-MM");
   const defaultFrom = format(subMonths(startOfMonth(new Date()), months - 1), "yyyy-MM");
 
+  const isMetaLive = media === "META";
+
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setSourceError(null);
+    setMetaInfo(null);
     try {
       const params = new URLSearchParams({ from: defaultFrom, to: defaultTo });
-      if (media) params.set("media", media);
-      const res = await fetch(`/api/analytics/by-prefecture?${params}`);
+      const endpoint = isMetaLive
+        ? `/api/meta/insights/by-region?${params}`
+        : (() => {
+            if (media) params.set("media", media);
+            return `/api/analytics/by-prefecture?${params}`;
+          })();
+
+      const res = await fetch(endpoint);
       const json = await res.json();
-      setData(json);
+
+      if (!res.ok) {
+        setSourceError(typeof json.error === "string" ? json.error : "取得に失敗しました");
+        setData([]);
+        return;
+      }
+
+      if (isMetaLive) {
+        setData(json.byPrefecture ?? []);
+        setMetaInfo(json.meta ?? null);
+      } else {
+        setData(Array.isArray(json) ? json : []);
+      }
+    } catch (e) {
+      setSourceError(e instanceof Error ? e.message : String(e));
+      setData([]);
     } finally {
       setLoading(false);
     }
-  }, [defaultFrom, defaultTo, media]);
+  }, [defaultFrom, defaultTo, media, isMetaLive]);
 
   useEffect(() => {
     fetchData();
@@ -135,13 +170,25 @@ export default function MapPage() {
             </p>
           </div>
           <h1 className="text-3xl font-bold text-stone-900 tracking-tight">地図分析</h1>
-          <p className="text-sm text-stone-500 mt-1 flex items-center gap-1.5">
+          <p className="text-sm text-stone-500 mt-1 flex items-center gap-1.5 flex-wrap">
             <IconCalendar size={14} />
             <span>
               {defaultFrom} 〜 {defaultTo}
             </span>
             <span className="text-stone-300 mx-1">·</span>
             <span>全国 {activePrefs} 都道府県のデータ</span>
+            {isMetaLive && (
+              <>
+                <span className="text-stone-300 mx-1">·</span>
+                <span
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                  style={{ background: "#E7F0FE", color: "#1877F2" }}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#1877F2] animate-pulse-dot" />
+                  Meta API ライブ
+                </span>
+              </>
+            )}
           </p>
         </div>
       </div>
@@ -216,6 +263,40 @@ export default function MapPage() {
           </div>
         </div>
       </div>
+
+      {sourceError && (
+        <div className="card p-4 border border-rose-200 bg-rose-50">
+          <p className="text-sm font-semibold text-rose-700 mb-1">
+            {isMetaLive ? "Meta APIからの取得に失敗" : "データ取得に失敗"}
+          </p>
+          <p className="text-xs text-rose-600 break-all">{sourceError}</p>
+        </div>
+      )}
+
+      {isMetaLive && metaInfo && metaInfo.unmapped.length > 0 && (
+        <div className="card p-4 border border-amber-200 bg-amber-50">
+          <p className="text-sm font-semibold text-amber-800 mb-1">
+            都道府県にマッピングできなかった地域があります
+          </p>
+          <p className="text-xs text-amber-800 mb-2">
+            Meta APIから返された {metaInfo.rawRowCount} 行のうち、{metaInfo.mappedCount}{" "}
+            都道府県にマッピング成功。未マッピング分の広告費: {formatJPY(metaInfo.unmappedSpend)}
+          </p>
+          <details className="text-xs">
+            <summary className="cursor-pointer text-amber-700 hover:text-amber-900">
+              未マッピングの地域を表示（上位{metaInfo.unmapped.length}件）
+            </summary>
+            <ul className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-0.5 text-amber-800">
+              {metaInfo.unmapped.map((u, i) => (
+                <li key={i} className="flex justify-between">
+                  <span className="truncate">{u.region}</span>
+                  <span className="tabular-nums">{formatJPY(u.spend)}</span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 地図 */}
@@ -313,7 +394,9 @@ export default function MapPage() {
                       <p className="font-bold text-xs tabular-nums text-stone-900">
                         {formatMetric(d)}
                       </p>
-                      <p className="text-[10px] text-stone-400">{d.storeCount}店舗</p>
+                      {!isMetaLive && (
+                        <p className="text-[10px] text-stone-400">{d.storeCount}店舗</p>
+                      )}
                     </div>
                   </button>
                 );
@@ -336,7 +419,9 @@ export default function MapPage() {
                   {selected.prefecture}
                 </h2>
                 <p className="text-xs text-stone-500">
-                  {selected.storeCount} 店舗のデータ
+                  {isMetaLive
+                    ? "Meta広告 API ライブ取得"
+                    : `${selected.storeCount} 店舗のデータ`}
                 </p>
               </div>
             </div>
@@ -349,7 +434,15 @@ export default function MapPage() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {[
-              { label: "店舗数", value: `${selected.storeCount} 店舗`, color: "text-stone-900" },
+              ...(isMetaLive
+                ? []
+                : [
+                    {
+                      label: "店舗数",
+                      value: `${selected.storeCount} 店舗`,
+                      color: "text-stone-900",
+                    },
+                  ]),
               { label: "広告費", value: formatJPY(selected.metrics.spend), color: "text-stone-900" },
               { label: "リード数", value: `${selected.metrics.leads} 件`, color: "text-rose-600" },
               { label: "契約数", value: `${Math.round(selected.metrics.contracts)} 件`, color: "text-stone-900" },
