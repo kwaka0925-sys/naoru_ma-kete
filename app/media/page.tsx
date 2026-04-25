@@ -385,7 +385,7 @@ export default function MediaPage() {
                   </div>
 
                   {/* プライマリKPIs (3カラム) */}
-                  <div className="grid grid-cols-3 gap-3 mb-4 pb-4 border-b border-stone-100">
+                  <div className="grid grid-cols-3 gap-x-4 gap-y-3 mb-4 pb-4 border-b border-stone-100">
                     {[
                       { label: "広告費", value: formatJPY(metrics.spend) },
                       { label: "リード数", value: `${formatNumber(metrics.leads)} 件` },
@@ -394,11 +394,11 @@ export default function MediaPage() {
                         value: metrics.cpa ? formatJPY(metrics.cpa) : "—",
                       },
                     ].map(({ label, value }) => (
-                      <div key={label}>
+                      <div key={label} className="min-w-0">
                         <p className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider mb-1">
                           {label}
                         </p>
-                        <p className="text-lg font-bold text-stone-900 tabular-nums">
+                        <p className="text-base font-bold text-stone-900 tabular-nums whitespace-nowrap overflow-hidden text-ellipsis">
                           {value}
                         </p>
                       </div>
@@ -406,7 +406,7 @@ export default function MediaPage() {
                   </div>
 
                   {/* セカンダリKPIs (3x2 グリッド) */}
-                  <div className="grid grid-cols-3 gap-y-3 gap-x-3 text-xs">
+                  <div className="grid grid-cols-3 gap-y-3 gap-x-4 text-xs">
                     {[
                       {
                         label: "インプレッション",
@@ -424,11 +424,11 @@ export default function MediaPage() {
                         value: formatPercent(metrics.ctr, 2),
                       },
                     ].map(({ label, value }) => (
-                      <div key={label}>
-                        <p className="text-[10px] text-stone-500 font-medium mb-0.5">
+                      <div key={label} className="min-w-0">
+                        <p className="text-[10px] text-stone-500 font-medium mb-0.5 truncate">
                           {label}
                         </p>
-                        <p className="font-semibold text-stone-700 tabular-nums">
+                        <p className="font-semibold text-stone-700 tabular-nums whitespace-nowrap overflow-hidden text-ellipsis">
                           {value}
                         </p>
                       </div>
