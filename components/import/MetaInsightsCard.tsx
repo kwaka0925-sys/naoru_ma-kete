@@ -346,9 +346,14 @@ export default function MetaInsightsCard() {
           {/* キャンペーン別 */}
           {data.byCampaign.length > 0 && (
             <div>
-              <h3 className="text-sm font-bold text-stone-900 mb-2">
-                キャンペーン別（上位20件）
-              </h3>
+              <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+                <h3 className="text-sm font-bold text-stone-900">
+                  キャンペーン別 CPA安い順（上位20件）
+                </h3>
+                <p className="text-[10px] text-stone-400">
+                  CPA未算出（CV=0）のキャンペーンは末尾に表示
+                </p>
+              </div>
               <div className="overflow-x-auto rounded-lg border border-stone-200 max-h-96 overflow-y-auto">
                 <table className="w-full text-xs">
                   <thead className="bg-stone-50 sticky top-0">
@@ -361,12 +366,23 @@ export default function MetaInsightsCard() {
                       <th className="text-right px-2.5 py-2 font-semibold text-stone-600">CLICK</th>
                       <th className="text-right px-2.5 py-2 font-semibold text-stone-600">CTR</th>
                       <th className="text-right px-2.5 py-2 font-semibold text-stone-600">CV</th>
-                      <th className="text-right px-2.5 py-2 font-semibold text-stone-600">CPA</th>
+                      <th className="text-right px-2.5 py-2 font-semibold text-stone-600">
+                        <span className="inline-flex items-center gap-0.5">
+                          CPA <span className="text-orange-500">↑</span>
+                        </span>
+                      </th>
                       <th className="text-right px-2.5 py-2 font-semibold text-stone-600">ROAS</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {data.byCampaign.slice(0, 20).map((c) => (
+                    {[...data.byCampaign]
+                      .sort((a, b) => {
+                        const aCpa = a.costPerPurchase ?? Number.POSITIVE_INFINITY;
+                        const bCpa = b.costPerPurchase ?? Number.POSITIVE_INFINITY;
+                        return aCpa - bCpa;
+                      })
+                      .slice(0, 20)
+                      .map((c) => (
                       <tr key={c.campaignId} className="border-t border-stone-100">
                         <td className="px-2.5 py-1.5 text-stone-800 max-w-xs truncate">
                           {c.campaignName}
@@ -376,7 +392,7 @@ export default function MetaInsightsCard() {
                         <td className="px-2.5 py-1.5 text-right tabular-nums">{formatNumber(c.clicks)}</td>
                         <td className="px-2.5 py-1.5 text-right tabular-nums">{formatPercent(c.ctr, 2)}</td>
                         <td className="px-2.5 py-1.5 text-right tabular-nums">{formatNumber(c.purchases)}</td>
-                        <td className="px-2.5 py-1.5 text-right tabular-nums">
+                        <td className="px-2.5 py-1.5 text-right tabular-nums font-semibold text-stone-900">
                           {c.costPerPurchase ? formatJPY(c.costPerPurchase) : "—"}
                         </td>
                         <td className="px-2.5 py-1.5 text-right tabular-nums">
