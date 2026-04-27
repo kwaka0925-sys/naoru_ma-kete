@@ -345,18 +345,23 @@ export default function MetaInsightsCard() {
 
           {/* キャンペーン別 */}
           {data.byCampaign.length > 0 && (() => {
-            const sortedCampaigns = [...data.byCampaign]
+            const allRanked = [...data.byCampaign]
               .filter((c) => c.spend > 0)
               .sort((a, b) => {
                 const aCpa = a.costPerPurchase ?? Number.POSITIVE_INFINITY;
                 const bCpa = b.costPerPurchase ?? Number.POSITIVE_INFINITY;
                 return aCpa - bCpa;
               });
+            const sortedCampaigns = allRanked.slice(0, 50);
             return (
               <div>
                 <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
                   <h3 className="text-sm font-bold text-stone-900">
-                    キャンペーン別 CPA安い順（全{sortedCampaigns.length}件）
+                    キャンペーン別 CPA安い順 ランキング（上位{sortedCampaigns.length}件
+                    {allRanked.length > sortedCampaigns.length
+                      ? ` / 全${allRanked.length}件中`
+                      : ""}
+                    ）
                   </h3>
                   <p className="text-[10px] text-stone-400">
                     広告費が発生したキャンペーンのみ · CPA未算出（CV=0）は末尾に表示
